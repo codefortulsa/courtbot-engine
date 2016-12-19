@@ -26,6 +26,7 @@ function sendMessage(msg, res) {
   res.writeHead(200, {'Content-Type': 'text/xml'});
   res.end(twiml.toString());
 
+
   return Promise.resolve(msg);
 }
 
@@ -133,26 +134,26 @@ module.exports.addRoutes = function(app, options) {
           if(pending.state == registrationState.ASKED_PARTY) {
             options.caseData.getCaseParties(pending.case_number)
               .then(parties => {
+                var matching;
                 if(messageSource.isOrdinal(text)) {
                   var ord = messageSource.getOrdinal(text);
-                  var matching;
-
                   if(ord > 0 && ord <= parties.length) {
                     matching = parties[ord - 1];
                   }
-
-                  var candidates = parties.filter(p => p.name.toUpperCase().indexOf(text) >= 0);
-                  if(candidates.length > 0) {
-                    matching = candidates[0];
-                  }
-
-                  if(matching) {
-                    registrationSource.updateRegistrationName(pending.registration_id, matching.name)
-                      .then(() => sendMessage(messageSource.askReminder(phone, pending, matching), res))
-                      .then(() => registrationSource.updateRegistrationState(pending.registration_id, registrationState.ASKED_REMINDER));
-                    return;
-                  }
                 }
+
+                var candidates = parties.filter(p => p.name.toUpperCase().indexOf(text) >= 0);
+                if(candidates.length > 0) {
+                  matching = candidates[0];
+                }
+
+                if(matching) {
+                  registrationSource.updateRegistrationName(pending.registration_id, matching.name)
+                    .then(() => sendMessage(messageSource.askReminder(phone, pending, matching), res))
+                    .then(() => registrationSource.updateRegistrationState(pending.registration_id, registrationState.ASKED_REMINDER));
+                  return;
+                }
+
               });
           }
           else if(pending.state == registrationState.ASKED_REMINDER && messageSource.isYes(text)) {
