@@ -87,11 +87,11 @@ module.exports.checkMissingCases = function(opt) {
 
   return registrationSource.getRegistrationsByState(registrationState.UNBOUND)
     .then(registrations => {
-      Promise.all(
+      return Promise.all(
         registrations.map(r =>
           options.getCaseParties(r.case_number)
             .then(parties => {
-              if(parties.length == 0) {
+              if(parties.length != 0) {
                 if(moment(parties.create_date).diff(moment(), 'days') > options.UnboundTTL) {
                   return sendNonReplyMessage(r.phone, messageSource.expiredRegistration(r), options)
                     .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.UNSUBSCRIBED));
