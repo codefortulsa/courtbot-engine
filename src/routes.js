@@ -61,6 +61,7 @@ export default function(opt) {
             }
           }
           else {
+            console.log("Creating new registration...");
             registrationSource.createRegistration({
               phone,
               name: null,
@@ -69,11 +70,14 @@ export default function(opt) {
             })
             .then(id => registrationSource.getRegistrationById(id))
             .then(registration => options.caseData.getCaseParties(text).then(parties => {
+              console.log("parties:", parties);
               if(parties.length > 1) {
+                console.log("more than 1 party found!");
                 return sendMessage(messageSource.askParty(phone, registration, parties), res)
                   .then(() => registrationSource.updateRegistrationState(registration.registration_id, registrationState.ASKED_PARTY));
               }
               else if(parties.length == 1) {
+                console.log("exactly one party found!")
                 return registrationSource.updateRegistrationName(registration.registration_id, parties[0].name)
                   .then(() => sendMessage(messageSource.askReminder(phone, registration, parties[0]), res))
                   .then(() => registrationSource.updateRegistrationState(registration.registration_id, registrationState.ASKED_REMINDER));
