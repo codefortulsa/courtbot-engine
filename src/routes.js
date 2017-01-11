@@ -2,7 +2,7 @@ import express from "express";
 import { sendMessage } from "./twilio";
 import completeOptions from "./defaultOptions";
 import { registrationSourceFn, messageSourceFn } from "./sources";
-import { registrationState } from "./registrationState";
+import registrationState from "./registrationState";
 
 export default function(opt) {
   var router = express.Router();
