@@ -1,4 +1,5 @@
 import express from "express";
+import log4js from "log4js";
 import { sendMessage } from "./twilio";
 import completeOptions from "./defaultOptions";
 import { registrationSourceFn, messageSourceFn } from "./sources";
@@ -30,11 +31,11 @@ export default function(opt) {
                   var matching;
                   if(messageSource.isOrdinal(text)) {
                     var ord = messageSource.getOrdinal(text);
-                    console.log(`trying to choose party number: ${ord} (number of parties: ${parties.length})`);
+                    log4js.getLogger("sms-choose-party").info(`trying to choose party number: ${ord} (number of parties: ${parties.length})`);
                     if(ord > 0 && ord <= parties.length) {
                       matching = parties[ord - 1];
                     }else {
-                      console.log(ord, "is out of range.");
+                      log4js.getLogger("sms-choose-party").info(`${ord} is out of range.`);
                     }
                   }
 
@@ -49,7 +50,7 @@ export default function(opt) {
                       .then(() => registrationSource.updateRegistrationState(pending.registration_id, registrationState.ASKED_REMINDER));
                     return;
                   } else {
-                    console.log("did not find any parties for text: ", text);
+                    log4js.getLogger("sms-choose-party").info(`did not find any parties for text: ${text}.`);
                   }
 
                 });
@@ -66,7 +67,7 @@ export default function(opt) {
             }
           }
           else {
-            console.log("Creating new registration...");
+            log4js.getLogger("sms-new-registration").info("Creating new registration...");
             registrationSource.createRegistration({
               phone,
               name: null,
@@ -75,14 +76,14 @@ export default function(opt) {
             })
             .then(id => registrationSource.getRegistrationById(id))
             .then(registration => options.caseData.getCaseParties(text).then(parties => {
-              console.log("parties:", parties);
+              log4js.getLogger("sms-new-registration").info("parties found for new registration", parties);
               if(parties.length > 1) {
-                console.log("more than 1 party found!");
+                log4js.getLogger("sms-new-registration").info("more than 1 party found!");
                 return sendMessage(messageSource.askParty(phone, registration, parties), res)
                   .then(() => registrationSource.updateRegistrationState(registration.registration_id, registrationState.ASKED_PARTY));
               }
               else if(parties.length == 1) {
-                console.log("exactly one party found!")
+                log4js.getLogger("sms-new-registration").info("exactly one party found!")
                 return registrationSource.updateRegistrationName(registration.registration_id, parties[0].name)
                   .then(() => sendMessage(messageSource.askReminder(phone, registration, parties[0]), res))
                   .then(() => registrationSource.updateRegistrationState(registration.registration_id, registrationState.ASKED_REMINDER));
@@ -91,7 +92,7 @@ export default function(opt) {
                 return sendMessage(messageSource.noCaseMessage(text), res);
               }
             }))
-            .catch(err => console.log("Error:", err));
+            .catch(err => log4js.getLogger("sms-new-registration").info("Error occured during registration", err));
           }
         })
     })

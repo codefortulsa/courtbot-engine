@@ -5,7 +5,6 @@ import chaiAsPromised from "chai-as-promised";
 import Chance from "chance";
 import proxyquire from "proxyquire";
 
-
 const chance = new Chance();
 const expect = chai.expect;
 const should = chai.should();
@@ -18,21 +17,30 @@ describe("twilio", () => {
   let sendMessageStub;
   let testee;
   let twimlOutput;
+  let log4js;
+  let infoStub;
 
   beforeEach(() => {
     smsStub = sinon.stub();
     sendMessageStub = sinon.stub();
+    infoStub = sinon.stub();
 
     twimlOutput = chance.paragraph();
     twilio = sinon.stub().returns({
       sendMessage: sendMessageStub
     });
+    log4js = {
+      getLogger: sinon.stub().returns({
+        info: infoStub
+      })
+    };
     twilio.TwimlResponse = sinon.stub();
     twilio.TwimlResponse.prototype.sms = smsStub;
     twilio.TwimlResponse.prototype.toString = () => twimlOutput;
 
     testee = proxyquire("../src/twilio.js", {
-      twilio
+      twilio,
+      log4js
     });
   });
 
