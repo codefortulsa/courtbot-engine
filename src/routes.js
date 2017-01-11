@@ -30,8 +30,11 @@ export default function(opt) {
                   var matching;
                   if(messageSource.isOrdinal(text)) {
                     var ord = messageSource.getOrdinal(text);
+                    console.log("trying to choose party number: ", ord);
                     if(ord > 0 && ord <= parties.length) {
                       matching = parties[ord - 1];
+                    }else {
+                      console.log(ord, "is out of range.");
                     }
                   }
 
@@ -45,6 +48,8 @@ export default function(opt) {
                       .then(() => sendMessage(messageSource.askReminder(phone, pending, matching), res))
                       .then(() => registrationSource.updateRegistrationState(pending.registration_id, registrationState.ASKED_REMINDER));
                     return;
+                  } else {
+                    console.log("did not find any parties for text: ", text);
                   }
 
                 });
