@@ -5,7 +5,7 @@ import { registrationSourceFn, messageSourceFn } from "./sources";
 import { registrationState } from "./registrationState";
 
 export default function(options) {
-  var router = express.router();
+  var router = express.Router();
   var completeOptions = completeOptions(options);
 
   var registrationSource = registrationSourceFn(options.dbUrl);
