@@ -11,7 +11,7 @@ export function sendMessage(msg, res) {
 }
 
 export function sendNonReplyMessage(phone, message, opt) {
-  console.log("Sending:", msg, " to: ", phone);
+  console.log("Sending:", message, " to: ", phone);
   return new Promise(function(resolve, reject) {
     var client = twilio(opt.twilioAccount, opt.twilioToken);
     client.sendMessage({to: phone, from: opt.twilioPhone, body: message}, function(err) {
