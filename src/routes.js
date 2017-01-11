@@ -87,4 +87,6 @@ export default function(opt) {
         })
     })
   );
+
+  return router;
 }
