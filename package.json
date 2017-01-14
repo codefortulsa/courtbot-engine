@@ -4,8 +4,8 @@
   "description": "An engine for courtbot-like functionality to be included in city/county services sites.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --require babel-register --reporter nyan",
-    "test-watch": "mocha --require babel-register --reporter nyan --watch",
+    "test": "mocha",
+    "test-watch": "mocha --watch",
     "build": "babel --presets es2015 src --out-dir lib",
     "_release": "npm run test && npm build && npm version $VERSION && git push && npm publish",
     "release:prerelease": "VERSION=prerelease npm run _release",
