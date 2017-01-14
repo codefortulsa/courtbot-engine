@@ -1,0 +1,6 @@
+--require test/setup.js
+--compilers js:babel-register
+--recursive
+--colors
+--reporter list
+--timeout 25000

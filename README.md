@@ -1,4 +1,4 @@
-# courtbot-engine
+# courtbot-engine https://travis-ci.org/codefortulsa/courtbot-engine.svg?branch=master
 
 This repository is the meat of the courtbot functionality, intended to be require'd by a project that wants to implement courtbot.
 
