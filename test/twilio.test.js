@@ -1,17 +1,9 @@
-import sinon from "sinon";
-import chai from "chai";
-import sinonChai from "sinon-chai";
-import chaiAsPromised from "chai-as-promised";
-import Chance from "chance";
 import proxyquire from "proxyquire";
-
-const chance = new Chance();
-const expect = chai.expect;
-const should = chai.should();
-chai.use(sinonChai);
-chai.use(chaiAsPromised);
+import setup from './setup';
 
 describe("twilio", () => {
+  const {sandbox, chance, expect} = setup();
+
   let twilio;
   let smsStub;
   let sendMessageStub;
@@ -21,20 +13,20 @@ describe("twilio", () => {
   let infoStub;
 
   beforeEach(() => {
-    smsStub = sinon.stub();
-    sendMessageStub = sinon.stub();
-    infoStub = sinon.stub();
+    smsStub = sandbox.stub();
+    sendMessageStub = sandbox.stub();
+    infoStub = sandbox.stub();
 
     twimlOutput = chance.paragraph();
-    twilio = sinon.stub().returns({
+    twilio = sandbox.stub().returns({
       sendMessage: sendMessageStub
     });
     log4js = {
-      getLogger: sinon.stub().returns({
+      getLogger: sandbox.stub().returns({
         info: infoStub
       })
     };
-    twilio.TwimlResponse = sinon.stub();
+    twilio.TwimlResponse = sandbox.stub();
     twilio.TwimlResponse.prototype.sms = smsStub;
     twilio.TwimlResponse.prototype.toString = () => twimlOutput;
 
@@ -50,8 +42,8 @@ describe("twilio", () => {
 
     beforeEach(() => {
       res = {
-        writeHead: sinon.stub(),
-        end: sinon.stub()
+        writeHead: sandbox.stub(),
+        end: sandbox.stub()
       };
       msg = chance.paragraph();
     });
