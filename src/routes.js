@@ -51,9 +51,9 @@ export default function(opt) {
                     registrationSource.updateRegistrationName(pending.registration_id, matching.name)
                       .then(() => sendMessage(messageSource.askReminder(phone, pending, matching), res))
                       .then(() => registrationSource.updateRegistrationState(pending.registration_id, registrationState.ASKED_REMINDER));
-                    return;
                   } else {
                     log4js.getLogger("sms-choose-party").info(`did not find any parties for text: ${text}.`);
+                    sendMessage(messageSource.askPartyAgain(text, phone, registration, parties));
                   }
 
                 });
