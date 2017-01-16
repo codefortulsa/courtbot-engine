@@ -3,6 +3,7 @@ import { sendNonReplyMessage } from "./twilio";
 import completeOptions from "./defaultOptions";
 import { registrationSourceFn, messageSourceFn } from "./sources";
 import registrationState from "./registrationState";
+import cbEvents from "./events";
 
 export default function(opt) {
   var options = completeOptions(opt);
@@ -16,7 +17,7 @@ export default function(opt) {
       return;
     }
     return Promise.all(registrations.map(r => {
-      return options.caseData.getCasePartyEvents(r.casenumber, r.name)
+      return cbEvents.getCasePartyEvents(r.casenumber, r.name)
         .then(events => events.filter(x => {
           var theDate = moment(x.date.replace(" at ", " "), "dddd, MMMM D, YYYY h:mm A");
           var theDiff = theDate.diff(moment(), 'days');
