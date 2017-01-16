@@ -76,7 +76,7 @@ export default function(opt) {
               state: registrationState.UNBOUND
             })
             .then(id => registrationSource.getRegistrationById(id))
-            .then(registration => cbEvent.getCaseParties(text).then(parties => {
+            .then(registration => cbEvents.getCaseParties(text).then(parties => {
               log4js.getLogger("sms-new-registration").info("parties found for new registration", parties);
               if(parties.length > 1) {
                 log4js.getLogger("sms-new-registration").info("more than 1 party found!");
