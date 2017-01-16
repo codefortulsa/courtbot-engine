@@ -3,6 +3,7 @@ import { sendNonReplyMessage } from "./twilio";
 import completeOptions from "./defaultOptions";
 import { registrationSourceFn, messageSourceFn } from "./sources";
 import registrationState from "./registrationState";
+import { getCaseParties } from "./events";
 
 export function checkMissingCases(opt) {
   var options = completeOptions(opt);
@@ -13,7 +14,7 @@ export function checkMissingCases(opt) {
     .then(registrations => {
       return Promise.all(
         registrations.map(r =>
-          options.getCaseParties(r.case_number)
+          getCaseParties(r.case_number)
             .then(parties => {
               if(parties.length != 0) {
                 if(moment(parties.create_date).diff(moment(), 'days') > options.UnboundTTL) {

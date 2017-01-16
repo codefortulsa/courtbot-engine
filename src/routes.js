@@ -4,7 +4,7 @@ import { sendMessage } from "./twilio";
 import completeOptions from "./defaultOptions";
 import { registrationSourceFn, messageSourceFn } from "./sources";
 import registrationState from "./registrationState";
-import cbEvents from "./events";
+import {getCaseParties} from "./events";
 
 export default function(opt) {
   var router = express.Router();
@@ -27,7 +27,7 @@ export default function(opt) {
             var pending = pendingRegistrations[0];
 
             if(pending.state == registrationState.ASKED_PARTY) {
-              cbEvents.getCaseParties(pending.case_number)
+              getCaseParties(pending.case_number)
                 .then(parties => {
                   var matching;
                   if(messageSource.isOrdinal(text)) {
@@ -76,7 +76,7 @@ export default function(opt) {
               state: registrationState.UNBOUND
             })
             .then(id => registrationSource.getRegistrationById(id))
-            .then(registration => cbEvents.getCaseParties(text).then(parties => {
+            .then(registration => getCaseParties(text).then(parties => {
               log4js.getLogger("sms-new-registration").info("parties found for new registration", parties);
               if(parties.length > 1) {
                 log4js.getLogger("sms-new-registration").info("more than 1 party found!");
