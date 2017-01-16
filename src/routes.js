@@ -53,7 +53,7 @@ export default function(opt) {
                       .then(() => registrationSource.updateRegistrationState(pending.registration_id, registrationState.ASKED_REMINDER));
                   } else {
                     log4js.getLogger("sms-choose-party").info(`did not find any parties for text: ${text}.`);
-                    sendMessage(messageSource.askPartyAgain(text, phone, pending, parties));
+                    sendMessage(messageSource.askPartyAgain(text, phone, pending, parties), res);
                   }
 
                 });
