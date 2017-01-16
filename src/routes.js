@@ -15,6 +15,8 @@ export default function(opt) {
 
   registrationSource.migrate().then(() =>
     router.post("/", function(req,res,next) {
+      log4js.getLogger("sms").info("Incomming request", req.body);
+
       var text = req.body.Body.toUpperCase().trim();
       var phone = req.body.From;
 
