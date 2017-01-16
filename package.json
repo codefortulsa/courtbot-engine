@@ -11,7 +11,8 @@
     "release:prerelease": "VERSION=prerelease npm run _release",
     "release:patch": "VERSION=patch npm run _release",
     "release:minor": "VERSION=minor npm run _release",
-    "release:major": "VERSION=major npm run _release"
+    "release:major": "VERSION=major npm run _release",
+    "lint": "eslint src/ test/ --ext .js, .jsx --ignore-path .eslintignore"
   },
   "keywords": [
     "courtbot",
@@ -33,12 +34,17 @@
     "chai-as-promised": "^6.0.0",
     "chance": "^1.0.4",
     "dirty-chai": "^1.2.2",
+    "eslint-config-recommended": "^1.5.0",
     "express": "^4.14.0",
     "mocha": "^3.2.0",
     "proxyquire": "^1.7.10",
     "sinon": "^1.17.7",
     "sinon-chai": "^2.8.0",
-    "webpack": "^1.14.0"
+    "webpack": "^1.14.0",
+    "eslint": "~3.5.0",
+    "eslint-loader": "~1.5.0",
+    "eslint-plugin-chai-expect": "^1.0.1",
+    "eslint-plugin-react": "^6.2.1"
   },
   "dependencies": {
     "log4js": "^1.1.0",

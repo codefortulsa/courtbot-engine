@@ -1,0 +1,24 @@
+{
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
+  },
+
+  "plugins": [
+  ],
+
+  "env": {
+    "node": true, // Node.js global variables and Node.js scoping
+    "es6": true, // enable all ECMAScript 6 features except for modules
+    "browser": true, // browser global variables (Like document)
+    "mocha": true
+  },
+
+  "extends": ["eslint:recommended"],
+  "rules": {
+    "no-console":1
+  }
+}
