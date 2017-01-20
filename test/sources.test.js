@@ -46,25 +46,25 @@ describe("sources", () => {
         testee.registrationSourceFn = noop;
 
         testee.setRegistrationSource(undefined);
-        expect(typeof testee.registrationSourceFn).to.equal(`function`);
+        expect(testee.registrationSourceFn).to.equal(noop);
 
         testee.setRegistrationSource(null);
-        expect(typeof testee.registrationSourceFn).to.equal(`function`);
+        expect(testee.registrationSourceFn).to.equal(noop);
 
         testee.setRegistrationSource(true);
-        expect(typeof testee.registrationSourceFn).to.equal(`function`);        
+        expect(testee.registrationSourceFn).to.equal(noop);
 
         testee.setRegistrationSource(2);
-        expect(typeof testee.registrationSourceFn).to.equal(`function`);
+        expect(testee.registrationSourceFn).to.equal(noop);
 
         testee.setRegistrationSource(`not a function`);
-        expect(typeof testee.registrationSourceFn).to.equal(`function`);
+        expect(testee.registrationSourceFn).to.equal(noop);
 
         testee.setRegistrationSource(Symbol(`foo`));
-        expect(typeof testee.registrationSourceFn).to.equal(`function`);
+        expect(testee.registrationSourceFn).to.equal(noop);
 
         testee.setRegistrationSource({key: `value`});
-        expect(typeof testee.registrationSourceFn).to.equal(`function`);
+        expect(testee.registrationSourceFn).to.equal(noop);
     });
 
     it ("registrationSourceFn should have a default function", () => {
@@ -105,25 +105,25 @@ describe("sources", () => {
         testee.messageSourceFn = noop;
 
         testee.setMessageSource(undefined);
-        expect(typeof testee.messageSourceFn).to.equal(`function`);
+        expect(testee.messageSourceFn).to.equal(noop);
 
         testee.setMessageSource(null);
-        expect(typeof testee.messageSourceFn).to.equal(`function`);
+        expect(testee.messageSourceFn).to.equal(noop);
 
         testee.setMessageSource(true);
-        expect(typeof testee.messageSourceFn).to.equal(`function`);        
+        expect(testee.messageSourceFn).to.equal(noop);
 
         testee.setMessageSource(2);
-        expect(typeof testee.messageSourceFn).to.equal(`function`);
+        expect(testee.messageSourceFn).to.equal(noop);
 
         testee.setMessageSource(`not a function`);
-        expect(typeof testee.messageSourceFn).to.equal(`function`);
+        expect(testee.messageSourceFn).to.equal(noop);
 
         testee.setMessageSource(Symbol(`foo`));
-        expect(typeof testee.messageSourceFn).to.equal(`function`);
+        expect(testee.messageSourceFn).to.equal(noop);
 
         testee.setMessageSource({key: `value`});
-        expect(typeof testee.messageSourceFn).to.equal(`function`);
+        expect(testee.messageSourceFn).to.equal(noop);
     });
 
     it ("registrationSourceFn should have a default function", () => {
