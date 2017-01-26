@@ -7,7 +7,8 @@
     "test": "mocha",
     "test-watch": "mocha --watch",
     "build": "rm -rf lib && babel --presets es2015 src --out-dir lib",
-    "release": "npm run test && npm run build && release && npm publish",
+    "release": "npm run test && npm run build && npm run lint && release && npm publish",
+    "lint": "eslint src/ test/ --ext .js, .jsx --ignore-path .eslintignore"
   },
   "keywords": [
     "courtbot",
@@ -29,13 +30,18 @@
     "chai-as-promised": "^6.0.0",
     "chance": "^1.0.4",
     "dirty-chai": "^1.2.2",
+    "eslint-config-recommended": "^1.5.0",
     "express": "^4.14.0",
     "git-release": "^0.6.0",
     "mocha": "^3.2.0",
     "proxyquire": "^1.7.10",
     "sinon": "^1.17.7",
     "sinon-chai": "^2.8.0",
-    "webpack": "^1.14.0"
+    "webpack": "^1.14.0",
+    "eslint": "~3.5.0",
+    "eslint-loader": "~1.5.0",
+    "eslint-plugin-chai-expect": "^1.0.1",
+    "eslint-plugin-react": "^6.2.1"
   },
   "dependencies": {
     "log4js": "^1.1.0",
