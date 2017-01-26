@@ -1,6 +1,6 @@
 const EventEmitter = require('events');
 
-class CourtbotEmitter extends EventEmitter {};
+class CourtbotEmitter extends EventEmitter {}
 
 const emitter = new CourtbotEmitter();
 

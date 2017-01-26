@@ -22,13 +22,13 @@ export function checkMissingCases(opt) {
                     .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.UNSUBSCRIBED));
                 }
                 else if(parties.length > 1) {
-                  sendNonReplyMessage(r.phone, messageSource.askParty(r.phone, registration, parties), options)
-                    .then(() => registrationSource.updateRegistrationState(registration.registration_id, registrationState.ASKED_PARTY));
+                  sendNonReplyMessage(r.phone, messageSource.askParty(r.phone, r, parties), options)
+                    .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.ASKED_PARTY));
                 }
                 else if(parties.length == 1) {
-                  registrationSource.updateRegistrationName(registration.registration_id, parties[0].name)
-                    .then(() => sendNonReplyMessage(r.phone, messageSource.askReminder(r.phone, registration, parties[0]), options))
-                    .then(() => registrationSource.updateRegistrationState(registration.registration_id, registrationState.ASKED_REMINDER));
+                  registrationSource.updateRegistrationName(r.registration_id, parties[0].name)
+                    .then(() => sendNonReplyMessage(r.phone, messageSource.askReminder(r.phone, r, parties[0]), options))
+                    .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.ASKED_REMINDER));
                 }
               }
             })

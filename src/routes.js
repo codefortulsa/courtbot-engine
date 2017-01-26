@@ -14,7 +14,7 @@ export default function(opt) {
   var messageSource = messageSourceFn(options);
 
   registrationSource.migrate().then(() =>
-    router.post("/", function(req,res,next) {
+    router.post("/", function(req,res) {
       log4js.getLogger("sms").info("Incomming request", req.body);
 
       var text = req.body.Body.toUpperCase().trim();
@@ -22,7 +22,6 @@ export default function(opt) {
 
       registrationSource.getRegistrationsByPhone(phone)
         .then(registrations => {
-          console.dir(registrations);
           var pendingRegistrations = registrations.filter(r => r.state != registrationState.REMINDING && r.state != registrationState.UNBOUND && r.state != registrationState.UNSUBSCRIBED);
 
           if(pendingRegistrations.length > 0) {
