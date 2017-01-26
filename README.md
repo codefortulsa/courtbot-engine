@@ -1,4 +1,4 @@
-# courtbot-engine [![Build Status](https://travis-ci.org/codefortulsa/courtbot-engine.svg?branch=master)](https://travis-ci.org/codefortulsa/courtbot-engine) [![npm](https://img.shields.io/npm/v/courtbot-engine.svg)](https://www.npmjs.com/package/courtbot-engine)
+# courtbot-engine [![Build Status](https://travis-ci.org/codefortulsa/courtbot-engine.svg?branch=master)](https://travis-ci.org/codefortulsa/courtbot-engine) [![npm](https://img.shields.io/npm/v/courtbot-engine.svg)](https://www.npmjs.com/package/courtbot-engine) [![npm](https://img.shields.io/npm/dt/courtbot-engine.svg)](https://www.npmjs.com/package/courtbot-engine)
 
 This repository is the meat of the courtbot functionality, intended to be require'd by a project that wants to implement courtbot.
 
