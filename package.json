@@ -6,12 +6,8 @@
   "scripts": {
     "test": "mocha",
     "test-watch": "mocha --watch",
-    "build": "babel --presets es2015 src --out-dir lib",
-    "_release": "npm run test && npm build && npm version $VERSION && git push && npm publish",
-    "release:prerelease": "VERSION=prerelease npm run _release",
-    "release:patch": "VERSION=patch npm run _release",
-    "release:minor": "VERSION=minor npm run _release",
-    "release:major": "VERSION=major npm run _release"
+    "build": "rm -rf lib && babel --presets es2015 src --out-dir lib",
+    "release": "npm run test && npm run build && release && npm publish",
   },
   "keywords": [
     "courtbot",
@@ -34,6 +30,7 @@
     "chance": "^1.0.4",
     "dirty-chai": "^1.2.2",
     "express": "^4.14.0",
+    "git-release": "^0.6.0",
     "mocha": "^3.2.0",
     "proxyquire": "^1.7.10",
     "sinon": "^1.17.7",
