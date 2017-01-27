@@ -20,6 +20,10 @@ describe(`events`, () => {
     let failedPromise;
     let errorPromise;
 
+    let stub;
+    let emptyGetCasePartiesResult;
+    let emptyGetCasePartyEventsResult;
+
     beforeEach(() => {
         dummyCase = -1;
         dummyParty = -1;
@@ -28,9 +32,13 @@ describe(`events`, () => {
         dummyEventList = [{date: `1`}, [{date: '2'}, {date: `3`}]];
         reducedDummyEventList = [{date: `1`}, {date: '2'}, {date: `3`}];
 
+        stub = sandbox.stub();
+
         testCase = `CF-2016-644`;
 
         testee = require(`../src/events.js`);
+        emptyGetCasePartiesResult = { parties: [], promises: [] };
+        emptyGetCasePartyEventsResult = { events: [], promises: [] };
         emitter = testee.default;
 
         successfulPromise = (value) => {           
@@ -53,26 +61,21 @@ describe(`events`, () => {
     });
 
     it(`the emitter should emit the retrieve-parties event when getCaseParties() is called`, () => {
-        let value = false;
-        emitter.on(`retrieve-parties`, () => {
-            value = true; 
-        });
+        emitter.on(`retrieve-parties`, stub);
 
         return testee.getCaseParties(dummyCase)
-            .then(() => expect(value).to.equal(true));
+            .then(() => {
+                expect(stub).to.have.been.called();
+            });
     });
 
     it(`getCaseParties() should pass the casenumber and the empty result object to the event listener`, () => {
-        emitter.on(`retrieve-parties`, (casenumber, result) => {
-            expect(casenumber).to.equal(dummyCase);
+        emitter.on(`retrieve-parties`, stub);
 
-            expect(Array.isArray(result.promises)).to.equal(true);
-            expect(result.promises.length).to.equal(0);
-            expect(Array.isArray(result.parties)).to.equal(true);
-            expect(result.parties.length).to.equal(0);
-        });
-
-        testee.getCaseParties(dummyCase);
+        return testee.getCaseParties(dummyCase)
+            .then(() => {
+                expect(stub).to.have.been.calledWith(dummyCase, emptyGetCasePartiesResult);
+            });
     });
 
     it (`getCaseParties() should return a concatenated array of all party names found`, () => {
@@ -85,50 +88,22 @@ describe(`events`, () => {
         return testee.getCaseParties(dummyCase).should.eventually.deep.equal(reducedDummyPartyList);
     });
 
-    it(`getCaseParties() should let rejected Promises fall through the chain`, () => {       
-        emitter.on(`retrieve-parties`, (casenumber, result) => {
-            dummyPartyList.forEach((elem) => {
-                result.promises.push(failedPromise(elem));
-            });
-        });
-
-        // getCaseParties returns a Promise.all(), which should reject when one promise is rejected
-        return testee.getCaseParties(dummyCase).should.eventually.be.rejected();
-    });
-
-    it(`getCaseParties() should let errors thrown in Promises fall through the chain`, () => {
-        emitter.on(`retrieve-parties`, (casenumber, result) => {
-            dummyPartyList.forEach((elem) => {
-                result.promises.push(errorPromise(elem));
-            });
-        });
-
-        // getCaseParties returns a Promise.all(), which should reject when one promise is rejected
-        return testee.getCaseParties(dummyCase).should.eventually.be.rejected();
-    });
-
     it(`the emitter should emit the retrieve-party-events event when getCasePartyEvents() is called`, () => {
-        let value = false;
-        emitter.on(`retrieve-party-events`, () => {
-            value = true; 
-        });
+        emitter.on(`retrieve-party-events`, stub);
 
         return testee.getCasePartyEvents(dummyCase)
-            .then(() => expect(value).to.equal(true));
+            .then(() => {
+                expect(stub).to.have.been.called()
+            });
     });
 
     it(`getCasePartyEvents() should pass the casenumber, party and the empty result object to the event listener`, () => {
-        emitter.on(`retrieve-party-events`, (casenumber, party, result) => {
-            expect(casenumber).to.equal(dummyCase);
-            expect(party).to.equal(dummyParty);
+        emitter.on(`retrieve-party-events`, stub);
 
-            expect(Array.isArray(result.promises)).to.equal(true);
-            expect(result.promises.length).to.equal(0);
-            expect(Array.isArray(result.events)).to.equal(true);
-            expect(result.events.length).to.equal(0);
-        });
-
-        testee.getCasePartyEvents(dummyCase, dummyParty);
+        return testee.getCasePartyEvents(dummyCase, dummyParty)
+            .then(() => {
+                expect(stub).to.have.been.calledWith(dummyCase, dummyParty, emptyGetCasePartyEventsResult);
+            });
     });
 
     it (`getCasePartyEvents() should return a concatenated array of all events found`, () => {
@@ -139,27 +114,5 @@ describe(`events`, () => {
         });
 
         return testee.getCasePartyEvents(dummyCase, dummyParty).should.eventually.deep.equal(reducedDummyEventList);
-    });
-
-    it(`getCasePartyEvents() should let rejected Promises fall through the chain`, () => {       
-        emitter.on(`retrieve-party-events`, (casenumber, party, result) => {
-            dummyPartyList.forEach((elem) => {
-                result.promises.push(failedPromise(elem));
-            });
-        });
-
-        // getCasePartyEvents returns a Promise.all(), which should reject when one promise is rejected
-        return testee.getCasePartyEvents(dummyCase, dummyParty).should.eventually.be.rejected();
-    });
-
-    it(`getCasePartyEvents() should let errors thrown in Promises fall through the chain`, () => {
-        emitter.on(`retrieve-party-events`, (casenumber, party, result) => {
-            dummyPartyList.forEach((elem) => {
-                result.promises.push(errorPromise(elem));
-            });
-        });
-
-        // getCaseParties returns a Promise.all(), which should reject when one promise is rejected
-        return testee.getCaseParties(dummyCase, dummyParty).should.eventually.be.rejected();
     });
 });
