@@ -32,6 +32,9 @@ describe("sources", () => {
         returnValue = testee.setRegistrationSource(2);
         expect(returnValue).to.not.equal(undefined);
 
+        returnValue = testee.setRegistrationSource(NaN);
+        expect(returnValue).to.not.equal(undefined);
+
         returnValue = testee.setRegistrationSource(`not a function`);
         expect(returnValue).to.not.equal(undefined);
 
@@ -55,6 +58,9 @@ describe("sources", () => {
         expect(testee.registrationSourceFn).to.equal(noop);
 
         testee.setRegistrationSource(2);
+        expect(testee.registrationSourceFn).to.equal(noop);
+
+        testee.setRegistrationSource(NaN);
         expect(testee.registrationSourceFn).to.equal(noop);
 
         testee.setRegistrationSource(`not a function`);
@@ -91,6 +97,9 @@ describe("sources", () => {
         returnValue = testee.setMessageSource(2);
         expect(returnValue).to.not.equal(undefined);
 
+        returnValue = testee.setMessageSource(NaN);
+        expect(returnValue).to.not.equal(undefined);
+
         returnValue = testee.setMessageSource(`not a function`);
         expect(returnValue).to.not.equal(undefined);
 
@@ -114,6 +123,9 @@ describe("sources", () => {
         expect(testee.messageSourceFn).to.equal(noop);
 
         testee.setMessageSource(2);
+        expect(testee.messageSourceFn).to.equal(noop);
+
+        testee.setMessageSource(NaN);
         expect(testee.messageSourceFn).to.equal(noop);
 
         testee.setMessageSource(`not a function`);
