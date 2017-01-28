@@ -50,12 +50,6 @@ describe(`events`, () => {
                 reject(err);
             })
         }
-
-        errorPromise = (err) => {
-            return new Promise ((resolve, reject) => {
-                throw new Error(err);
-            })
-        }
     });
 
     afterEach(() => {
