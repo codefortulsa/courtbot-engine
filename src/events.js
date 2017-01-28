@@ -127,7 +127,7 @@ export function getCasePartyEvents(casenumber, party, errorMode = 1) {
   });
 }
 
-// Creates a well-formed custom error for logging/tracing purposes
+// A well-formed custom error class for logging/tracing purposes
 // See https://www.bennadel.com/blog/2828-creating-custom-error-objects-in-node-js-with-error-capturestacktrace.htm
 const COURTBOT_ERROR_NAME = `Courtbot Error`;
 
