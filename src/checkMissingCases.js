@@ -3,11 +3,13 @@ import completeOptions from "./defaultOptions";
 import { registrationSourceFn, messageSourceFn } from "./sources";
 import registrationState from "./registrationState";
 import { getCaseParties, sendNonReplyMessage } from "./events";
+import log4js from "log4js";
 
 export default function(opt) {
   var options = completeOptions(opt);
   var registrationSource = registrationSourceFn(options.dbUrl);
   var messageSource = messageSourceFn(options);
+  const logger = log4js.getLogger("checkMissingCases");
 
   return registrationSource.getRegistrationsByState(registrationState.UNBOUND)
     .then(registrations => {
@@ -15,6 +17,7 @@ export default function(opt) {
         registrations.map(r =>
           getCaseParties(r.case_number)
             .then(parties => {
+              logger.debug("parties returned from search:", parties);
               if(parties.length != 0) {
                 if(moment(parties.create_date).diff(moment(), 'days') > options.UnboundTTL) {
                   return sendNonReplyMessage(r.phone, messageSource.expiredRegistration(r), options)
