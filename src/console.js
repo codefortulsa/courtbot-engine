@@ -48,7 +48,6 @@ export default function(name, options) {
                   conversation.parse(replyResult, "tty");
                 })
               });
-              conversation.on("done", resolve);
 
               inquirer.prompt([
                 {
