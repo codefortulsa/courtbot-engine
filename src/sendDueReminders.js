@@ -1,5 +1,5 @@
 import moment from "moment";
-import { sendNonReplyMessage } from "./twilio";
+import { sendNonReplyMessage } from "./events";
 import completeOptions from "./defaultOptions";
 import { registrationSourceFn, messageSourceFn } from "./sources";
 import registrationState from "./registrationState";
@@ -28,12 +28,12 @@ export default function(opt) {
         }))
         .then(events => {
           return Promise.all(events.map(e => {
-            return registrationSource.getSentMessage(r.phone, r.name, e.date, e.description)
+            return registrationSource.getSentMessage(r.contact, r.communication_type, r.name, e.date, e.description)
               .then(d => {
                 if(d.length == 0) {
                   var message = messageSource.reminder(r, e);
-                  return sendNonReplyMessage(r.phone, message, options)
-                    .then(() => registrationSource.createSentMessage(r.phone, r,name, e.date, e.description));
+                  return sendNonReplyMessage(r.phone, message, r.communication_type)
+                    .then(() => registrationSource.createSentMessage(r.contact, r.communication_type, r,name, e.date, e.description));
                 } else {
                   log.info("already sent ", messageSource.reminder(r, e), "to", r.phone);
                 }
