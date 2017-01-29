@@ -112,7 +112,7 @@ export default class CourtbotConversation extends EventEmitter {
   }
 
   fetchActiveConversation(from) {
-    this.registrationSource.getRegistrationsByContact(from, conversationType)
+    this.registrationSource.getRegistrationsByContact(from, this.conversationType)
       .then(registrations =>
         registrations.filter(r => r.state != registrationState.REMINDING && r.state != registrationState.UNBOUND && r.state != registrationState.UNSUBSCRIBED)
       )
