@@ -32,21 +32,22 @@ export default function(name, options) {
               var conversation = new CourtbotConversation(communicationType, registrationSource, messageSource);
 
               conversation.on("reply", (reply, result) => {
-                result.promise = inquirer.prompt([
-                  {
-                    type: "input",
-                    name: "reply",
-                    message: reply,
-                    default: "END"
-                  }
-                ]).then(replyResult => {
-                  if(replyResult.reply === "END") {
-                    resolve();
-                    return;
-                  }
+                setTimeout(() =>
+                  result.promise = inquirer.prompt([
+                    {
+                      type: "input",
+                      name: "reply",
+                      message: reply,
+                      default: "END"
+                    }
+                  ]).then(replyResult => {
+                    if(replyResult.reply === "END") {
+                      resolve();
+                      return;
+                    }
 
-                  conversation.parse(replyResult.reply, "tty");
-                })
+                    conversation.parse(replyResult.reply, "tty");
+                  }), 0);
               });
 
               inquirer.prompt([
