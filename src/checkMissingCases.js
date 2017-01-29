@@ -10,6 +10,7 @@ export default function(opt) {
   var registrationSource = registrationSourceFn(options.dbUrl);
   var messageSource = messageSourceFn(options);
   const logger = log4js.getLogger("checkMissingCases");
+  logger.info("Checking for missing cases...");
 
   return registrationSource.getRegistrationsByState(registrationState.UNBOUND)
     .then(registrations => {
