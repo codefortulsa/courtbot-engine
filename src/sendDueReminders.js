@@ -28,12 +28,12 @@ export default function(opt) {
         }))
         .then(events => {
           return Promise.all(events.map(e => {
-            return registrationSource.getSentMessage(r.contact, r.name, e.date, e.description)
+            return registrationSource.getSentMessage(r.contact, r.communication_type, r.name, e.date, e.description)
               .then(d => {
                 if(d.length == 0) {
                   var message = messageSource.reminder(r, e);
                   return sendNonReplyMessage(r.phone, message, r.communication_type)
-                    .then(() => registrationSource.createSentMessage(r.contact, r,name, e.date, e.description));
+                    .then(() => registrationSource.createSentMessage(r.contact, r.communication_type, r,name, e.date, e.description));
                 } else {
                   log.info("already sent ", messageSource.reminder(r, e), "to", r.phone);
                 }
