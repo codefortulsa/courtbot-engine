@@ -4,7 +4,7 @@ import { registrationSourceFn, messageSourceFn } from "./sources";
 import registrationState from "./registrationState";
 import { getCaseParties, sendNonReplyMessage } from "./events";
 
-export function checkMissingCases(opt) {
+export default function(opt) {
   var options = completeOptions(opt);
   var registrationSource = registrationSourceFn(options.dbUrl);
   var messageSource = messageSourceFn(options);
