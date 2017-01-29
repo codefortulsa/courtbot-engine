@@ -1,4 +1,6 @@
+import log4js from "log4js";
 const EventEmitter = require('events');
+const logger = log4js.getLogger("events");
 
 class CourtbotEmitter extends EventEmitter {}
 
@@ -30,6 +32,8 @@ export function getCasePartyEvents(casenumber, party) {
 
 export function sendNonReplyMessage(to, msg, communicationType) {
   const result = {};
+  logger.debug("Attempting to send message", {to, msg, communicationType});
+  
   emitter.emit("send-non-reply", {to, msg, communicationType, result});
 
   if(result.promise) {

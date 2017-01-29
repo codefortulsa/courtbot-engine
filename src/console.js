@@ -16,7 +16,7 @@ export default function(name, options) {
     message: "What would you like to do?",
     choices: [
       "Start a new registration",
-      "Check form reminders",
+      "Check for reminders",
       "Check for missing cases",
       new inquirer.Separator(),
       "Exit"
@@ -58,7 +58,7 @@ export default function(name, options) {
                 }
               ]).then(initial => conversation.parse(initial.init, "tty"));
             });
-          case "Check form reminders":
+          case "Check for reminders":
             return sendDueReminders(options);
           case "Check for missing cases":
             return checkMissingCases(options);
@@ -72,9 +72,9 @@ export default function(name, options) {
     idlePrompt();
   });
 
-  emitter.on("send-non-reply", ({msg, msgCommunicationType}) => {
-    if(msgCommunicationType === communicationType) {
-      log4js.getLogger("console").info(msg);
+  emitter.on("send-non-reply", (data) => {
+    if(data.communicationType === communicationType) {
+      log4js.getLogger("console").info(data.msg);
     }
   });
 }

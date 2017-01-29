@@ -20,10 +20,11 @@ export default function(opt) {
       return;
     }
     return Promise.all(registrations.map(r => {
-      return getCasePartyEvents(r.casenumber, r.name)
+      return getCasePartyEvents(r.case_number, r.name)
         .then(events => events.filter(x => {
           var theDate = moment(x.date.replace(" at ", " "), "dddd, MMMM D, YYYY h:mm A");
           var theDiff = theDate.diff(moment(), 'days');
+          log.debug(`Event at ${theDiff} days out.`);
           return theDiff < options.reminderDaysOut && theDiff > 0;
         }))
         .then(events => {
@@ -33,7 +34,7 @@ export default function(opt) {
                 if(d.length == 0) {
                   var message = messageSource.reminder(r, e);
                   return sendNonReplyMessage(r.phone, message, r.communication_type)
-                    .then(() => registrationSource.createSentMessage(r.contact, r.communication_type, r,name, e.date, e.description));
+                    .then(() => registrationSource.createSentMessage(r.contact, r.communication_type, r.name, e.date, e.description));
                 } else {
                   log.info("already sent ", messageSource.reminder(r, e), "to", r.phone);
                 }

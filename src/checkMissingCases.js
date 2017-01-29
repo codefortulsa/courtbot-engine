@@ -20,22 +20,24 @@ export default function(opt) {
             .then(parties => {
               logger.debug("parties returned from search:", parties);
               if(parties.length != 0) {
-                if(moment(parties.create_date).diff(moment(), 'days') > options.UnboundTTL) {
-                  return sendNonReplyMessage(r.phone, messageSource.expiredRegistration(r), options)
-                    .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.UNSUBSCRIBED));
-                }
-                else if(parties.length > 1) {
-                  return sendNonReplyMessage(r.phone, messageSource.askParty(r.phone, r, parties), r.communication_type)
+                if(parties.length > 1) {
+                  logger.debug("Multiple parties found.");
+                  return sendNonReplyMessage(r.contact, messageSource.askParty(r.contact, r, parties), r.communication_type)
                     .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.ASKED_PARTY));
                 }
                 else if(parties.length == 1) {
+                  logger.debug("Single party found");
                   return registrationSource.updateRegistrationName(r.registration_id, parties[0].name)
-                    .then(() => sendNonReplyMessage(r.phone, messageSource.askReminder(r.phone, r, parties[0]), r.communication_type))
+                    .then(() => sendNonReplyMessage(r.contact, messageSource.askReminder(r.contact, r, parties[0]), r.communication_type))
                     .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.ASKED_REMINDER));
                 }
+              } else if(moment(parties.create_date).diff(moment(), 'days') > options.UnboundTTL) {
+                logger.debug("Expired registration found.");
+                return sendNonReplyMessage(r.phone, messageSource.expiredRegistration(r), options)
+                  .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.UNSUBSCRIBED));
               }
             })
         )
       )
-    });
+    }).catch(err => logger.error("Error checking missing cases:", err));
 }
