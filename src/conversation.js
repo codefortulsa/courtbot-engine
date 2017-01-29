@@ -113,9 +113,10 @@ export default class CourtbotConversation extends EventEmitter {
 
   fetchActiveConversation(from) {
     return this.registrationSource.getRegistrationsByContact(from, this.conversationType)
-      .then(registrations =>
-        registrations.filter(r => r.state != registrationState.REMINDING && r.state != registrationState.UNBOUND && r.state != registrationState.UNSUBSCRIBED)
-      )
+      .then(registrations => {
+        this.logger.debug("Registrations:", registrations);
+        return registrations.filter(r => r.state != registrationState.REMINDING && r.state != registrationState.UNBOUND && r.state != registrationState.UNSUBSCRIBED);
+      })
       .then(pendingRegistrations => pendingRegistrations.length > 0 ? pendingRegistrations[0] : null);
   }
 }
