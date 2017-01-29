@@ -40,12 +40,12 @@ export default function(name, options) {
                     default: "END"
                   }
                 ]).then(replyResult => {
-                  if(replyResult.input === "END") {
+                  if(replyResult.reply === "END") {
                     resolve();
                     return;
                   }
 
-                  conversation.parse(replyResult.input, "tty");
+                  conversation.parse(replyResult.reply, "tty");
                 })
               });
 
