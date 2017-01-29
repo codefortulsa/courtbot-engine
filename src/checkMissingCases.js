@@ -21,11 +21,11 @@ export default function(opt) {
                     .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.UNSUBSCRIBED));
                 }
                 else if(parties.length > 1) {
-                  sendNonReplyMessage(r.phone, messageSource.askParty(r.phone, r, parties), r.communication_type)
+                  return sendNonReplyMessage(r.phone, messageSource.askParty(r.phone, r, parties), r.communication_type)
                     .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.ASKED_PARTY));
                 }
                 else if(parties.length == 1) {
-                  registrationSource.updateRegistrationName(r.registration_id, parties[0].name)
+                  return registrationSource.updateRegistrationName(r.registration_id, parties[0].name)
                     .then(() => sendNonReplyMessage(r.phone, messageSource.askReminder(r.phone, r, parties[0]), r.communication_type))
                     .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.ASKED_REMINDER));
                 }
