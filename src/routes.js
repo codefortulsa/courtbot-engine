@@ -1,10 +1,11 @@
 import express from "express";
-import log4js from "log4js";
-import { sendMessage } from "./twilio";
 import completeOptions from "./defaultOptions";
 import { registrationSourceFn, messageSourceFn } from "./sources";
-import registrationState from "./registrationState";
-import emitter, {getCaseParties} from "./events";
+import emitter from "./events";
+
+//TODO: move to outside of the engine.
+import Twilio from "./twilio-routes";
+import ConsoleREPL from "./console";
 
 export default function(opt) {
   var router = express.Router();
@@ -13,8 +14,20 @@ export default function(opt) {
   var registrationSource = registrationSourceFn(options.dbUrl);
   var messageSource = messageSourceFn(options);
 
+  //TODO: move to outside of the engine.
+  Twilio("", options);
+  if(opt.ConsoleREPL)
+    ConsoleREPL("", options);
+
+  router.get("/communication-types", (req, res) => {
+    const communicationTypes = [];
+    emitter.emit("query-communication-types", communicationTypes);
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    res.end(JSON.stringify(communicationTypes));
+  });
+
   registrationSource.migrate().then(() =>
-    emitter.emit("add-routes", {router, options, registrationSource, messageSource});
+    emitter.emit("add-routes", {router, options, registrationSource, messageSource})
   );
 
   return router;

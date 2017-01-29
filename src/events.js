@@ -27,3 +27,18 @@ export function getCasePartyEvents(casenumber, party) {
   return Promise.all(result.promises)
     .then(results => results.reduce((a,b) => a.concat(b), result.events));
 }
+
+export function sendNonReplyMessage(to, msg, communicationType) {
+  const result = {};
+  emitter.emit("send-non-reply", {to, msg, communicationType, result});
+
+  if(result.promise) {
+    return result.promise;
+  }
+
+  if(result.promises) {
+    return Promise.all(result.promises);
+  }
+
+  return Promise.resolve(result);
+}

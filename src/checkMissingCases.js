@@ -1,9 +1,8 @@
 import moment from "moment";
-import { sendNonReplyMessage } from "./twilio";
 import completeOptions from "./defaultOptions";
 import { registrationSourceFn, messageSourceFn } from "./sources";
 import registrationState from "./registrationState";
-import { getCaseParties } from "./events";
+import { getCaseParties, sendNonReplyMessage } from "./events";
 
 export function checkMissingCases(opt) {
   var options = completeOptions(opt);
@@ -22,12 +21,12 @@ export function checkMissingCases(opt) {
                     .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.UNSUBSCRIBED));
                 }
                 else if(parties.length > 1) {
-                  sendNonReplyMessage(r.phone, messageSource.askParty(r.phone, r, parties), options)
+                  sendNonReplyMessage(r.phone, messageSource.askParty(r.phone, r, parties), r.communication_type)
                     .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.ASKED_PARTY));
                 }
                 else if(parties.length == 1) {
                   registrationSource.updateRegistrationName(r.registration_id, parties[0].name)
-                    .then(() => sendNonReplyMessage(r.phone, messageSource.askReminder(r.phone, r, parties[0]), options))
+                    .then(() => sendNonReplyMessage(r.phone, messageSource.askReminder(r.phone, r, parties[0]), r.communication_type))
                     .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.ASKED_REMINDER));
                 }
               }
