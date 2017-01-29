@@ -4,7 +4,6 @@ import { registrationSourceFn, messageSourceFn } from "./sources";
 import emitter from "./events";
 
 //TODO: move to outside of the engine.
-import Twilio from "./twilio-routes";
 import ConsoleREPL from "./console";
 
 export default function(opt) {
@@ -15,7 +14,6 @@ export default function(opt) {
   var messageSource = messageSourceFn(options);
 
   //TODO: move to outside of the engine.
-  Twilio("", options);
   if(opt.ConsoleREPL)
     ConsoleREPL("", options);
 
