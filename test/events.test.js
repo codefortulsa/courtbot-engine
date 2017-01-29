@@ -1,4 +1,5 @@
 import setup from './setup';
+import courtbotError from '../src/courtbotError';
 
 describe(`events`, () => {
     const {sandbox, expect} = setup();
@@ -16,13 +17,16 @@ describe(`events`, () => {
 
     let successfulPromise;
     let failedPromise;
-    let errorPromise;
 
     let retrieveStub;
     let retrieveErrorStub;
     let emptyResult;
 
     beforeEach(() => {
+        testee = require(`../src/events.js`);
+        testCase = `CF-2016-644`;
+        emitter = testee.default;
+
         dummyCase = -1;
         dummyParty = -1;
         dummyPartyList = [[{name: `a`}, {name: `b`}], {name: `c`}];
@@ -32,11 +36,6 @@ describe(`events`, () => {
 
         retrieveStub = sandbox.stub();
         retrieveErrorStub = sandbox.stub();
-
-        testCase = `CF-2016-644`;
-
-        testee = require(`../src/events.js`);
-        emitter = testee.default;
         emptyResult = { promises: [] };
 
         successfulPromise = (value) => {           
@@ -56,82 +55,7 @@ describe(`events`, () => {
         // So that we don't have all the listeners adding all the things
         emitter.removeAllListeners();
     });
-
-    describe(`errors`, () => {
-        it (`a courtbotError should extend Error`, () => {
-            let testError = new testee.courtbotError();
-
-            expect(testError instanceof Error).to.equal(true);
-        });
-
-        it (`a courtbotError should have the correct default settings`, () => {
-            let testSettings = {
-                type: `general`,
-                message: `No message listed`,
-                case: `No case listed`,
-                api: `No api listed`,
-                timestamp: `No timestamp listed`,
-                initialError: null
-            };
-
-            let testError = new testee.courtbotError();
-
-            expect(testError.type).to.equal(testSettings.type);
-            expect(testError.message).to.equal(testSettings.message);
-            expect(testError.case).to.equal(testSettings.case);
-            expect(testError.api).to.equal(testSettings.api);
-            expect(testError.timestamp).to.equal(testSettings.timestamp);
-            expect(testError.initialError).to.deep.equal(testSettings.initialError);
-        });
-
-        it (`a courtbotError settings should be set correctly`, () => {
-            let testSettings = {
-                type: `test`,
-                message: `message`,
-                case: `case`,
-                api: `api`,
-                timestamp: Date(),
-                initialError: null
-            }
-
-            let testError = new testee.courtbotError(testSettings);
-
-            expect(testError.type).to.equal(testSettings.type);
-            expect(testError.message).to.equal(testSettings.message);
-            expect(testError.case).to.equal(testSettings.case);
-            expect(testError.api).to.equal(testSettings.api);
-            expect(testError.timestamp).to.equal(testSettings.timestamp);
-            expect(testError.initialError).to.deep.equal(testSettings.initialError);          
-        });
-
-        it (`a courtbotError should be throwable and identify itself as a courtbotError`, () => {           
-            try {
-                throw(new testee.courtbotError());
-            }
-            catch (err) {
-                expect(err.isCourtbotError).to.equal(true);
-            }
-        });
-
-        it (`a courtbotError should not include itself in a stack trace by default`, function stackTraceTest() {
-               try {
-                throw(new testee.courtbotError());
-            }
-            catch (err) {
-                expect(err.stack).to.not.contain(`new courtbotError`);
-            }
-        });
-
-        it (`a courtbotError should allow frames farther up the trace to be hidden`, function stackTraceTest() {
-            try {
-                throw(new testee.courtbotError({}, stackTraceTest));
-            }
-            catch (err) {
-                expect(err.stack).to.not.contain(`stackTraceTest`);
-            }
-        });
-    });
-
+    
     describe(`getCaseParties()`, () => {
         it(`the emitter should emit the retrieve-parties event`, () => {
             emitter.on(`retrieve-parties`, retrieveStub);
@@ -249,7 +173,8 @@ describe(`events`, () => {
         });
 
         it ('should not place anything in intial error if the data error is a courtbotError', () => {
-            let testData = new testee.courtbotError(``);
+            let testData = new courtbotError(``);
+            console.log(testee);
 
             emitter.on(`retrieve-parties-error`, (errors) => {
                 expect(errors[0].initialError).to.deep.equal(null);
@@ -421,7 +346,7 @@ describe(`events`, () => {
         });
 
         it ('should not place anything in intial error if the data error is a courtbotError', () => {
-            let testData = new testee.courtbotError(``);
+            let testData = new courtbotError(``);
 
             emitter.on(`retrieve-party-events-error`, (errors) => {
                 expect(errors[0].initialError).to.deep.equal(null);
