@@ -1,8 +1,12 @@
+
+import log4js from "log4js";
 const EventEmitter = require(`events`);
 import courtbotError from '../src/courtbotError'
 import {COURTBOT_ERROR_NAME} from '../src/courtbotError';
 
-class CourtbotEmitter extends EventEmitter {};
+const logger = log4js.getLogger("events");
+
+class CourtbotEmitter extends EventEmitter {}
 
 const emitter = new CourtbotEmitter();
 
@@ -127,4 +131,21 @@ export function getCasePartyEvents(casenumber, party, errorMode = 1) {
     }
     return results;
   });
+}
+
+export function sendNonReplyMessage(to, msg, communicationType) {
+  const result = {};
+  logger.debug("Attempting to send message", {to, msg, communicationType});
+  
+  emitter.emit("send-non-reply", {to, msg, communicationType, result});
+
+  if(result.promise) {
+    return result.promise;
+  }
+
+  if(result.promises) {
+    return Promise.all(result.promises);
+  }
+
+  return Promise.resolve(result);
 }

@@ -1,14 +1,16 @@
 import moment from "moment";
-import { sendNonReplyMessage } from "./twilio";
 import completeOptions from "./defaultOptions";
 import { registrationSourceFn, messageSourceFn } from "./sources";
 import registrationState from "./registrationState";
-import { getCaseParties } from "./events";
+import { getCaseParties, sendNonReplyMessage } from "./events";
+import log4js from "log4js";
 
-export function checkMissingCases(opt) {
+export default function(opt) {
   var options = completeOptions(opt);
   var registrationSource = registrationSourceFn(options.dbUrl);
   var messageSource = messageSourceFn(options);
+  const logger = log4js.getLogger("checkMissingCases");
+  logger.info("Checking for missing cases...");
 
   return registrationSource.getRegistrationsByState(registrationState.UNBOUND)
     .then(registrations => {
@@ -16,23 +18,26 @@ export function checkMissingCases(opt) {
         registrations.map(r =>
           getCaseParties(r.case_number)
             .then(parties => {
+              logger.debug("parties returned from search:", parties);
               if(parties.length != 0) {
-                if(moment(parties.create_date).diff(moment(), 'days') > options.UnboundTTL) {
-                  return sendNonReplyMessage(r.phone, messageSource.expiredRegistration(r), options)
-                    .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.UNSUBSCRIBED));
-                }
-                else if(parties.length > 1) {
-                  sendNonReplyMessage(r.phone, messageSource.askParty(r.phone, registration, parties), options)
-                    .then(() => registrationSource.updateRegistrationState(registration.registration_id, registrationState.ASKED_PARTY));
+                if(parties.length > 1) {
+                  logger.debug("Multiple parties found.");
+                  return sendNonReplyMessage(r.contact, messageSource.askParty(r.contact, r, parties), r.communication_type)
+                    .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.ASKED_PARTY));
                 }
                 else if(parties.length == 1) {
-                  registrationSource.updateRegistrationName(registration.registration_id, parties[0].name)
-                    .then(() => sendNonReplyMessage(r.phone, messageSource.askReminder(r.phone, registration, parties[0]), options))
-                    .then(() => registrationSource.updateRegistrationState(registration.registration_id, registrationState.ASKED_REMINDER));
+                  logger.debug("Single party found");
+                  return registrationSource.updateRegistrationName(r.registration_id, parties[0].name)
+                    .then(() => sendNonReplyMessage(r.contact, messageSource.askReminder(r.contact, r, parties[0]), r.communication_type))
+                    .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.ASKED_REMINDER));
                 }
+              } else if(moment(parties.create_date).diff(moment(), 'days') > options.UnboundTTL) {
+                logger.debug("Expired registration found.");
+                return sendNonReplyMessage(r.phone, messageSource.expiredRegistration(r), options)
+                  .then(() => registrationSource.updateRegistrationState(r.registration_id, registrationState.UNSUBSCRIBED));
               }
             })
         )
       )
-    });
+    }).catch(err => logger.error("Error checking missing cases:", err));
 }
