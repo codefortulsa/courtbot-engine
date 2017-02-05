@@ -5,7 +5,7 @@ describe(`events`, () => {
     const {sandbox, expect} = setup();
 
     let testee;
-    let testCase;
+    //let testCase;
     let emitter;
 
     let dummyCase;
@@ -24,7 +24,7 @@ describe(`events`, () => {
 
     beforeEach(() => {
         testee = require(`../src/events.js`);
-        testCase = `CF-2016-644`;
+        //testCase = `CF-2016-644`;
         emitter = testee.default;
 
         dummyCase = -1;
@@ -38,8 +38,8 @@ describe(`events`, () => {
         retrieveErrorStub = sandbox.stub();
         emptyResult = { promises: [] };
 
-        successfulPromise = (value) => {           
-            return new Promise ((resolve, reject) => {
+        successfulPromise = (value) => {
+            return new Promise ((resolve) => {
                 resolve(value);
             })
         }
@@ -55,7 +55,7 @@ describe(`events`, () => {
         // So that we don't have all the listeners adding all the things
         emitter.removeAllListeners();
     });
-    
+
     describe(`getCaseParties()`, () => {
         it(`the emitter should emit the retrieve-parties event`, () => {
             emitter.on(`retrieve-parties`, retrieveStub);
@@ -130,7 +130,7 @@ describe(`events`, () => {
 
                 result.promises.push(failedPromise(`1`));
                 result.promises.push(failedPromise(`2`));
-                result.promises.push(failedPromise(`3`));                              
+                result.promises.push(failedPromise(`3`));
             });
 
             return testee.getCaseParties(dummyCase);
@@ -174,8 +174,6 @@ describe(`events`, () => {
 
         it ('should not place anything in intial error if the data error is a courtbotError', () => {
             let testData = new courtbotError(``);
-            console.log(testee);
-
             emitter.on(`retrieve-parties-error`, (errors) => {
                 expect(errors[0].initialError).to.deep.equal(null);
             });
@@ -188,7 +186,7 @@ describe(`events`, () => {
                 result.promises.push(failedPromise(testData));
             });
 
-            return testee.getCaseParties(dummyCase);            
+            return testee.getCaseParties(dummyCase);
         });
 
         it ('should not emit the retrieve-parties-error event if the 1s bit of errorMode is off', () => {
@@ -229,7 +227,7 @@ describe(`events`, () => {
 
     describe(`getCasePartyEvents()`, () => {
 
-        
+
         it(`the emitter should emit the retrieve-party-events event`, () => {
             emitter.on(`retrieve-party-events`, retrieveStub);
 
@@ -303,7 +301,7 @@ describe(`events`, () => {
 
                 result.promises.push(failedPromise(`1`));
                 result.promises.push(failedPromise(`2`));
-                result.promises.push(failedPromise(`3`));                              
+                result.promises.push(failedPromise(`3`));
             });
 
             return testee.getCasePartyEvents(dummyCase);
@@ -360,7 +358,7 @@ describe(`events`, () => {
                 result.promises.push(failedPromise(testData));
             });
 
-            return testee.getCasePartyEvents(dummyCase, dummyParty);            
+            return testee.getCasePartyEvents(dummyCase, dummyParty);
         });
 
         it ('should not emit the retrieve-parties-error event if the 1s bit of errorMode is off', () => {

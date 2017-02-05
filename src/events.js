@@ -40,8 +40,8 @@ export function getCaseParties(casenumber, errorMode = 1) {
     })
     .catch((err) => {
       // Raw logging - just to console, not log4js to keep dependencies low
-      console.warn(`events.js getCaseParties() data retrieval raw error on ` + Date() + `:`);
-      console.warn(err);
+      logger.warn(`events.js getCaseParties() data retrieval raw error on ` + Date() + `:`);
+      logger.warn(err);
 
       // Wrap the errors if necessary
       if (err.name !== COURTBOT_ERROR_NAME) {
@@ -51,7 +51,7 @@ export function getCaseParties(casenumber, errorMode = 1) {
       else {
         errors = errors.concat(err);
       }
-      
+
       return true;
     });
   }, Promise.resolve())
@@ -102,8 +102,8 @@ export function getCasePartyEvents(casenumber, party, errorMode = 1) {
     })
     .catch((err) => {
       // Raw logging - just to console, not log4js to keep dependencies low
-      console.warn(`events.js getCasePartyEvents() data retrieval raw error on ` + Date() + `:`);
-      console.warn(err);
+      logger.warn(`events.js getCasePartyEvents() data retrieval raw error on ` + Date() + `:`);
+      logger.warn(err);
 
       // Wrap the errors if necessary
       if (err.name !== COURTBOT_ERROR_NAME) {
@@ -114,7 +114,7 @@ export function getCasePartyEvents(casenumber, party, errorMode = 1) {
       else {
         errors = errors.concat(err);
       }
-      
+
       return true;
     });
   }, Promise.resolve())
@@ -136,7 +136,7 @@ export function getCasePartyEvents(casenumber, party, errorMode = 1) {
 export function sendNonReplyMessage(to, msg, communicationType) {
   const result = {};
   logger.debug("Attempting to send message", {to, msg, communicationType});
-  
+
   emitter.emit("send-non-reply", {to, msg, communicationType, result});
 
   if(result.promise) {
