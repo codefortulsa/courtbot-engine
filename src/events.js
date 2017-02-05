@@ -1,8 +1,8 @@
 
 import log4js from "log4js";
 const EventEmitter = require(`events`);
-import courtbotError from '../src/courtbotError'
-import {COURTBOT_ERROR_NAME} from '../src/courtbotError';
+import courtbotError from './courtbotError'
+import {COURTBOT_ERROR_NAME} from './courtbotError';
 
 const logger = log4js.getLogger("events");
 
