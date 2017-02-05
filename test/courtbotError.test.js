@@ -42,7 +42,7 @@ describe(`courtbotError`, () => {
             case: `case`,
             api: `api`,
             timestamp: Date(),
-            initialError: null
+            initialError: `a`
         }
 
         let testError = new testee.default(testSettings);
