@@ -134,7 +134,7 @@ export function getCasePartyEvents(casenumber, party, errorMode = 1) {
 }
 
 export function sendNonReplyMessage(to, msg, communicationType) {
-  const result = {};
+  const result = {promises: []};
   logger.debug("Attempting to send message", {to, msg, communicationType});
 
   emitter.emit("send-non-reply", {to, msg, communicationType, result});
@@ -143,7 +143,7 @@ export function sendNonReplyMessage(to, msg, communicationType) {
     return result.promise;
   }
 
-  if(result.promises) {
+  if(result.promises.length) {
     return Promise.all(result.promises);
   }
 
