@@ -5,11 +5,13 @@ describe(`defaultOptions`, () => {
 
     let testee;
     let noop;
+    let sym = Symbol(`foo`);
+    let sym2 = Symbol(`bar`);
 
     beforeEach(() => {
         noop = () => {}
 
-        // Note: The module exports a default, anonymous function that returns an object
+        // Note: The module exports a default, anonymous function that returns an object - main focus of test
         testee = require(`../src/defaultOptions`);
     });
 
@@ -21,7 +23,7 @@ describe(`defaultOptions`, () => {
             expect(testee.scrubArray(2)).to.equal(false);
             expect(testee.scrubArray(NaN)).to.equal(false);
             expect(testee.scrubArray(`not a function`)).to.equal(false);
-            expect(testee.scrubArray(Symbol(`foo`))).to.equal(false);
+            expect(testee.scrubArray(sym)).to.equal(false);
             expect(testee.scrubArray({key: `value`})).to.equal(false);
             expect(testee.scrubArray(noop)).to.equal(false);
         });
@@ -31,15 +33,15 @@ describe(`defaultOptions`, () => {
         });
 
         it(`scrubArray() should remove everything but strings, booleans, numbers, and non-function objects from a passed array`, () => {
-            let input = [noop, 5, Symbol(`foo`), true, {}, null, undefined, `string`];
-            let output = [5, true, {}, `string`];
+            let input = [noop, 5, sym, true, {}, null, undefined, `string`];
+            let output = [5, sym, true, {}, `string`];
 
             expect(testee.scrubArray(input)).to.deep.equal(output);
         });
 
         it(`scrubArray() should scrub nested arrays`, () => {
-            let input = [5, [noop, 5, Symbol(`foo`), true, {}, null, undefined, `string`], `string`, [1, [undefined, `string`, noop]]];
-            let output = [5, [5, true, {}, `string`], `string`, [1, [`string`]]];
+            let input = [5, [noop, 5, sym, true, {}, null, undefined, `string`], `string`, [1, [undefined, `string`, noop]]];
+            let output = [5, [5, sym, true, {}, `string`], `string`, [1, [`string`]]];
 
             expect(testee.scrubArray(input)).to.deep.equal(output);
         });
@@ -51,7 +53,7 @@ describe(`defaultOptions`, () => {
             expect(testee.scrubObject(2)).to.equal(false);
             expect(testee.scrubObject(NaN)).to.equal(false);
             expect(testee.scrubObject(`not a function`)).to.equal(false);
-            expect(testee.scrubObject(Symbol(`foo`))).to.equal(false);
+            expect(testee.scrubObject(sym)).to.equal(false);
             expect(testee.scrubObject([])).to.equal(false);
             expect(testee.scrubObject(noop)).to.equal(false);
         });
@@ -64,7 +66,7 @@ describe(`defaultOptions`, () => {
             let input = {
                 a: noop,
                 b: 5,
-                c: Symbol(`foo`),
+                c: sym,
                 d: true,
                 e: {},
                 f: null,
@@ -95,6 +97,7 @@ describe(`defaultOptions`, () => {
 
             let output = {
                 b: 5,
+                c: sym,
                 d: true,
                 e: {},
                 h: `string`
@@ -107,7 +110,7 @@ describe(`defaultOptions`, () => {
             let input = {
                 a: noop,
                 b: 5,
-                c: Symbol(`foo`),
+                c: sym,
                 d: true,
                 e: {},
                 f: null,
@@ -118,7 +121,7 @@ describe(`defaultOptions`, () => {
                     b: 5
                 },
                 o2: {
-                    a: Symbol(`bar`),
+                    a: sym2,
                     b: undefined,
                     hello: `world`
                 }
@@ -126,6 +129,7 @@ describe(`defaultOptions`, () => {
 
             let output = {
                 b: 5,
+                c: sym,
                 d: true,
                 e: {},
                 h: `string`,
@@ -133,6 +137,7 @@ describe(`defaultOptions`, () => {
                     b: 5
                 },
                 o2: {
+                    a: sym2,
                     hello: `world`
                 }                
             }
@@ -188,9 +193,9 @@ describe(`defaultOptions`, () => {
             }
         });
 
-        it (`should scrub null, undefined, Symbol and function elements in an array from the array`, () => {
-            let o1 = [`option`, null, `option2`, undefined, `option3`, Symbol(`foo`), noop,`kablam!`];
-            let o2 = [`option`, `option2`, `option3`, `kablam!`];
+        it (`should not include null, undefined and function elements from a passed array`, () => {
+            let o1 = [`option`, null, `option2`, undefined, `option3`, sym, noop,`kablam!`];
+            let o2 = [`option`, `option2`, `option3`, sym, `kablam!`];
             let options = testee.default(o1);
 
             for (let i in o2) {
@@ -199,22 +204,22 @@ describe(`defaultOptions`, () => {
         });
 
         // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign,
-        // Object.assign() should wrap numbers, booleans and strings into the target object, starting with key "0"
+        // Object.assign() should wrap numbers, booleans, strings and symbols into the target object, starting with key "0"
         it('should wrap primitives into the object with key "0"', () => {
             expect(testee.default(5)[`0`]).to.equal(5);
             expect(testee.default(true)[`0`]).to.equal(true);
-            expect(Number.isNaN(testee.default(NaN)[`0`])).to.be.ok;
+            expect(Number.isNaN(testee.default(NaN)[`0`])).to.equal(true);
             expect(testee.default(`not a function`)[0]).to.equal(`not a function`);
+            expect(testee.default(sym)[0]).to.equal(sym);
         });
 
-        it('should ignore functions, Symbols, null and undefined being passed', () => {
-            expect(testee.default(Symbol(`foo`))).to.not.include.keys(`0`);
+        it('should ignore functions, null and undefined being passed', () => {
             expect(testee.default(noop)).to.not.include.keys(`0`);
             expect(testee.default(null)).to.not.include.keys(`0`);
             expect(testee.default(undefined)).to.not.include.keys(`0`);
         });
 
-        it(`should not assign each character of a passed string to a different property of the returned object`, () => {
+        it(`should not treat a passed string like an array where each element is a single character`, () => {
             let test = `not an object`;
 
             expect(testee.default(test)).to.not.include.keys((test.length - 1) + ``);
@@ -267,7 +272,7 @@ describe(`defaultOptions`, () => {
         it(`should have all values when passed an object and primitives`, () => {
             let o = { key: `value`, foo: `bar` }
 
-            let options = testee.default(o, true, 5);
+            let options = testee.default(true, 5, o);
 
             Object.keys(o).forEach((key) => {
                 expect(options[key]).to.equal(o[key]);
@@ -276,13 +281,13 @@ describe(`defaultOptions`, () => {
             expect(options[`1`]).to.equal(5);
         })
 
-        it('should have all values when an array has multiple acceptable primitives', () => {
+        it('should have all values when passed multiple acceptable primitives', () => {
             let o = [1, `not a function`, true, NaN];
             let options = testee.default(...o);
 
             Object.keys(o).forEach((key) => {
                 if (Number.isNaN(o[key])) {
-                    expect(Number.isNaN(options[key])).to.be.ok;
+                    expect(Number.isNaN(options[key])).to.equal(true);
                 }
                 else {
                     expect(options[key]).to.equal(o[key]);
@@ -291,13 +296,13 @@ describe(`defaultOptions`, () => {
         });
 
         it(`should ignore functions, symbols, null and undefined when passed multiple primitives`, () => {
-            let o1 = [1, null, `not a function`, undefined, true, noop, NaN, Symbol(`foo`)];
-            let o2 = [1, `not a function`, true, NaN];
+            let o1 = [1, null, `not a function`, undefined, true, noop, NaN, sym];
+            let o2 = [1, `not a function`, true, NaN, sym];
             let options = testee.default(...o1);
 
             Object.keys(o2).forEach((key) => {
                 if (Number.isNaN(o2[key])) {
-                    expect(Number.isNaN(options[key])).to.be.ok;
+                    expect(Number.isNaN(options[key])).to.equal(true);
                 }
                 else {
                     expect(options[key]).to.equal(o2[key]);

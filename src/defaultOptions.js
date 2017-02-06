@@ -2,28 +2,30 @@
 
    options: an value which contains additional options
    if options is an object, it assigns the key/value pairs to the returned object
-   if options is an array, it assigns the values of the array to the string keys corresponding to array index
-       (e.g. The item at array index 0 is assigned to key `0`)
-   if options is a primitive value, it converts the value to an array of length 1, then continues
+   if options is an array, it assigns the values of the array to the string keys corresponding to
+       array index (e.g. The item at array index 0 is assigned to key `0`)
+   if options is a primitive value, it pushed the value into an array of length 1
 
-   if more than one argument is passed, it parses the parameters as above. Arrays are concatenated, and key
-   collisions for multiple objects are resolved by overwriting the existing value of the key.
+   if more than one argument is passed, it parses the parameters as above. Arrays are concatenated,
+   and key collisions for multiple objects are resolved by overwriting the existing value of the key.
 
-   WARNING: THIS FUNCTION DOES NOT DEEP COPY OBJECTS/ARRAYS
-   WARNING: THIS FUNCTION REMOVES NESTED ARRAYS AND OBJECTS FROM PARAMETERS
-*/
+   This function may change the values of arrays/objects passed as arguments. Deep copying before
+   handling is not implemented. I'm hoping that options for a text message reminder system never
+   become that complicated.
+ */
 
 /* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
    Object.assign() should wrap primitives into the target object, starting with key "0"
-   Does not appear to be happening here, so writing workaround */
+   That does not appear to be happening here, so writing workaround to mimic that.
+ */
 export default function (...args) {
   let _optionArray = [];
   let _optionObject = {};
   
   // Parse arguments
   args.forEach((arg) => {
-    // convert primitives
-    if (typeof arg === `string` || typeof arg === `boolean` || typeof arg === `number`) {
+    // add primitives to array
+    if (typeof arg === `string` || typeof arg === `boolean` || typeof arg === `number` || typeof arg === `symbol`) {
       _optionArray.push(arg)
     }
     // Add arrays
@@ -34,13 +36,15 @@ export default function (...args) {
     else if (Object.prototype.toString.call(arg) === '[object Object]') {
       Object.assign(_optionObject, scrubObject(arg));
     }
-    // treat Symbols and other types as empty objects
+    // treat other types as empty objects
     // The other typeof responses: hostobject, functions and undefined, could cause problems
     else {
     }
   });
 
   // merge _optionArray into _optionObject
+  // if any of the keys in _optionObject are numbers that correspond to indices of _optionArray,
+  // they will be overwritten
   Object.assign(_optionObject, _optionArray);  
 
   return Object.assign({
@@ -49,23 +53,20 @@ export default function (...args) {
   }, _optionObject);
 }
 
-/* This function removes symbols and functions from an array, mainly to avoid some super hacker
-   pushing functions that interact in unexpected ways with code farther down the line.
+/* This function removes functions, null and undefined from an array, mainly to avoid some super
+   hacker including functions that interact in unexpected ways with code farther down the line.
 
    This function returns: false if not passed an array
                           the array itself if passed an empty array
-                          an array scrubbed of symbols, functions, null and undefined
+                          an array scrubbed of functions, null and undefined
 */
-export function scrubArray(passedArray) {
-  if (!Array.isArray(passedArray)) return false;
-
-  // avoid changing passed array
-  let arr = passedArray;
-  if (arr.length === 0) return arr;
+export function scrubArray(arr) {
+  if (!Array.isArray(arr)) return false;
+  if (arr.length === 0) return [];
 
   let i = 0;
   while (i < arr.length) {
-    if (typeof arr[i] === `string` || typeof arr[i] === `boolean` || typeof arr[i] === `number`) {
+    if (typeof arr[i] === `string` || typeof arr[i] === `boolean` || typeof arr[i] === `number` || typeof arr[i] === `symbol`) {
       i++;
     }
     else if (Array.isArray(arr[i])) {
@@ -84,31 +85,31 @@ export function scrubArray(passedArray) {
   return arr;
 }
 
-/* This function removes symbols and functions from the enumerable keys of an object, mainly to
-   avoid some super hacker pushing functions that interact in unexpected ways with code farther
-   down the line.
+/* This function removes functions, null and undefined values from an object, mainly to
+   avoid some super hacker including functions that interact in unexpected ways with code farther
+   down the line. It also removes non-enumerable keys and constructor information.
 
-   This function returns: false if not passed an [object Object] && !null && !undefined
+   This function returns: false if passed ![object Object] || !null || !undefined
                           an empty object if passed an empty object
-                          an object scrubbed of symbols, functions, null and undefined
+                          an object scrubbed of functions, null and undefined
    
-    */
+ */
 export function scrubObject(passedObject) {
   if (Object.prototype.toString.call(passedObject) !== `[object Object]`) return false;
   if (passedObject === null || passedObject === undefined) return false;
 
-  // avoid changing passed object while we alter it
+  // scrubbed/flattened object
   let obj = {};
 
   // Scrub all non-enumerable properties, but keep properties farther up the prototype chain.
-  // Also, by assigning the properties over, this scrubs constructor information as well as
-  // makes all property writeable and configurable.
+  // Also, by assigning the properties over, this scrubs constructor information, as well as
+  // makes all properties writeable and configurable.
   for (let key in passedObject) {
     obj[key] = passedObject[key];
   }
 
   Object.keys(obj).forEach((key) => {
-    if (typeof obj[key] === `string` || typeof obj[key] === `boolean` || typeof obj[key] === `number`) {
+    if (typeof obj[key] === `string` || typeof obj[key] === `boolean` || typeof obj[key] === `number` || typeof obj[key] === `symbol`) {
     }
     else if (Array.isArray(obj[key])) {
       obj[key] = scrubArray(obj[key]);
