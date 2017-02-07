@@ -1,14 +1,13 @@
-
-import log4js from "log4js";
 const EventEmitter = require(`events`);
-import courtbotError from './courtbotError'
-import {COURTBOT_ERROR_NAME} from './courtbotError';
-
-const logger = log4js.getLogger("events");
+import courtbotError from '../src/courtbotError'
+import log4js from 'log4js';
+import {COURTBOT_ERROR_NAME} from '../src/courtbotError';
 
 class CourtbotEmitter extends EventEmitter {}
 
 const emitter = new CourtbotEmitter();
+
+const logger = log4js.getLogger()
 
 export default emitter;
 
@@ -23,7 +22,7 @@ export function getCaseParties(casenumber, errorMode = 1) {
   }
 
   // emit runs synchronously because I/O is not involved, so result will always be populated
-  // before Promise.all() is called.
+  // before further functions are called.
   emitter.emit(`retrieve-parties`, casenumber, result);
 
   let results = [];
@@ -59,6 +58,7 @@ export function getCaseParties(casenumber, errorMode = 1) {
   .then(() => {
     // Emit the retrieve-parties-error first. Like retrieve-parties, it runs synchronously because there's no I/O
     if (errorMode % 2) emitter.emit(`retrieve-parties-error`, errors);
+
     // Add the errors to the return value if dictated by errorMode
     if ((errorMode >> 1) % 2) {
       results = {
@@ -82,7 +82,7 @@ export function getCasePartyEvents(casenumber, party, errorMode = 1) {
   }
 
   // emit runs synchronously because I/O is not involved, so result will always be populated
-  // before Promise.all() is called.
+  // before further functions are called.
   emitter.emit("retrieve-party-events", casenumber, party, result);
 
   let results = [];
@@ -122,6 +122,7 @@ export function getCasePartyEvents(casenumber, party, errorMode = 1) {
   .then(() => {
     // Emit the retrieve-parties-error first. Like retrieve-parties, it runs synchronously because there's no I/O
     if (errorMode % 2) emitter.emit(`retrieve-party-events-error`, errors);
+
     // Add the errors to the return value if dictated by errorMode
     if ((errorMode >> 1) % 2) {
       results = {
