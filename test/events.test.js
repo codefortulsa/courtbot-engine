@@ -51,7 +51,7 @@ describe(`events`, () => {
         // So that we don't have all the listeners adding all the things
         emitter.removeAllListeners();
     });
-    
+
     describe(`getCaseParties()`, () => {
         it(`the emitter should emit the retrieve-parties event`, () => {
             return expect(testee.getCaseParties).to.emitFrom(emitter, `retrieve-parties`);
@@ -117,7 +117,7 @@ describe(`events`, () => {
 
                 result.promises.push(failedPromise(`1`));
                 result.promises.push(failedPromise(`2`));
-                result.promises.push(failedPromise(`3`));                              
+                result.promises.push(failedPromise(`3`));
             });
 
             return testee.getCaseParties(dummyCase);
@@ -174,7 +174,7 @@ describe(`events`, () => {
                 result.promises.push(failedPromise(testData));
             });
 
-            return testee.getCaseParties(dummyCase);            
+            return testee.getCaseParties(dummyCase);
         });
 
         it('should not emit the retrieve-parties-error event if the 1s bit of errorMode is off', () => {
@@ -276,7 +276,7 @@ describe(`events`, () => {
 
                 result.promises.push(failedPromise(`1`));
                 result.promises.push(failedPromise(`2`));
-                result.promises.push(failedPromise(`3`));                              
+                result.promises.push(failedPromise(`3`));
             });
 
             return testee.getCasePartyEvents(dummyCase);
@@ -333,7 +333,7 @@ describe(`events`, () => {
                 result.promises.push(failedPromise(testData));
             });
 
-            return testee.getCasePartyEvents(dummyCase, dummyParty);            
+            return testee.getCasePartyEvents(dummyCase, dummyParty);
         });
 
         it('should not emit the retrieve-parties-error event if the 1s bit of errorMode is off', () => {

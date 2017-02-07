@@ -115,4 +115,7 @@ describe("sources", () => {
         testee.setMessageSource({key: `value`});
         expect(testee.messageSourceFn).to.equal(noop);
     });
+    it ("registrationSourceFn should have a default function", () => {
+        expect(typeof testee.messageSourceFn).to.equal(`function`);
+    });
 });

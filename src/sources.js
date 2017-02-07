@@ -1,7 +1,5 @@
-
-import log4js from 'log4js';
-
-const logger = log4js.getLogger();
+import log4js from "log4js";
+const logger = log4js.getLogger("sources");
 
 export var registrationSourceFn = function() { logger.warn(`registrationSourceFn in sources.js not initialized`) };
 export var messageSourceFn = function() { logger.warn(`messageSourceFn in sources.js not initialized`) };

@@ -52,7 +52,7 @@ describe(`courtbotError`, () => {
         expect(testError.case).to.equal(testSettings.case);
         expect(testError.api).to.equal(testSettings.api);
         expect(testError.timestamp).to.equal(testSettings.timestamp);
-        expect(testError.initialError).to.deep.equal(testSettings.initialError);          
+        expect(testError.initialError).to.deep.equal(testSettings.initialError);
     });
 
     it(`a courtbotError should be throwable and identify itself as a courtbotError`, () => {           
