@@ -9,13 +9,13 @@ describe(`courtbotError`, () => {
         testee = require(`../src/courtbotError`);
     });
 
-    it (`a courtbotError should extend Error`, () => {
+    it(`a courtbotError should extend Error`, () => {
         let testError = new testee.default();
 
         expect(testError instanceof Error).to.equal(true);
     });
 
-    it (`a courtbotError should have the correct default settings`, () => {
+    it(`a courtbotError should have the correct default settings`, () => {
         let testSettings = {
             type: `general`,
             message: `No message listed`,
@@ -35,7 +35,7 @@ describe(`courtbotError`, () => {
         expect(testError.initialError).to.deep.equal(testSettings.initialError);
     });
 
-    it (`a courtbotError settings should be set correctly`, () => {
+    it(`courtbotError settings should be set correctly`, () => {
         let testSettings = {
             type: `test`,
             message: `message`,
@@ -55,7 +55,7 @@ describe(`courtbotError`, () => {
         expect(testError.initialError).to.deep.equal(testSettings.initialError);          
     });
 
-    it (`a courtbotError should be throwable and identify itself as a courtbotError`, () => {           
+    it(`a courtbotError should be throwable and identify itself as a courtbotError`, () => {           
         try {
             throw(new testee.default());
         }
@@ -64,7 +64,7 @@ describe(`courtbotError`, () => {
         }
     });
 
-    it (`a courtbotError should not include itself in a stack trace by default`, function stackTraceTest() {
+    it(`a courtbotError should not include itself in a stack trace by default`, function stackTraceTest() {
             try {
             throw(new testee.default());
         }
@@ -73,7 +73,7 @@ describe(`courtbotError`, () => {
         }
     });
 
-    it (`a courtbotError should allow frames farther up the trace to be hidden`, function stackTraceTest() {
+    it(`a courtbotError should allow frames farther up the trace to be hidden`, function stackTraceTest() {
         try {
             throw(new testee.default({}, stackTraceTest));
         }

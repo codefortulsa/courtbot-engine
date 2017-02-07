@@ -36,10 +36,8 @@ export default function (...args) {
     else if (Object.prototype.toString.call(arg) === '[object Object]') {
       Object.assign(_optionObject, scrubObject(arg));
     }
-    // treat other types as empty objects
+    // ignore everything else
     // The other typeof responses: hostobject, functions and undefined, could cause problems
-    else {
-    }
   });
 
   // merge _optionArray into _optionObject
@@ -57,30 +55,26 @@ export default function (...args) {
    hacker including functions that interact in unexpected ways with code farther down the line.
 
    This function returns: false if not passed an array
-                          the array itself if passed an empty array
+                          an empty array if passed an empty array
                           an array scrubbed of functions, null and undefined
 */
-export function scrubArray(arr) {
-  if (!Array.isArray(arr)) return false;
-  if (arr.length === 0) return [];
+export function scrubArray(passedArray) {
+  if (!Array.isArray(passedArray)) return false;
+  if (passedArray.length === 0) return [];
 
-  let i = 0;
-  while (i < arr.length) {
-    if (typeof arr[i] === `string` || typeof arr[i] === `boolean` || typeof arr[i] === `number` || typeof arr[i] === `symbol`) {
-      i++;
+  let arr = [];
+
+  passedArray.forEach((elem) => {
+    if (typeof elem === `string` || typeof elem === `boolean` || typeof elem === `number` || typeof elem === `symbol`) {
+      arr.push(elem);
     }
-    else if (Array.isArray(arr[i])) {
-      arr[i] = scrubArray(arr[i]);
-      i++;
+    else if (Array.isArray(elem)) {
+      arr.push(scrubArray(elem));
     }
-    else if (Object.prototype.toString.call(arr[i]) === `[object Object]`) {
-      arr[i] = scrubObject(arr[i]);
-      i++;
-    }
-    else {
-      arr.splice(i, 1);
-    }
-  }
+    else if (Object.prototype.toString.call(elem) === `[object Object]`) {
+      arr.push(scrubObject(elem));
+    } // ignore everything else
+  });
 
   return arr;
 }
