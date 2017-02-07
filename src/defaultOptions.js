@@ -104,6 +104,7 @@ export function scrubObject(passedObject) {
 
   Object.keys(obj).forEach((key) => {
     if (typeof obj[key] === `string` || typeof obj[key] === `boolean` || typeof obj[key] === `number` || typeof obj[key] === `symbol`) {
+      return;
     }
     else if (Array.isArray(obj[key])) {
       obj[key] = scrubArray(obj[key]);

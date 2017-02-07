@@ -5,7 +5,6 @@ describe(`events`, () => {
     const {sandbox, expect} = setup();
 
     let testee;
-    let testCase;
     let emitter;
 
     let dummyCase;
@@ -23,7 +22,6 @@ describe(`events`, () => {
 
     beforeEach(() => {
         testee = require(`../src/events.js`);
-        testCase = `CF-2016-644`;
         emitter = testee.default;
 
         dummyCase = -1;
@@ -37,7 +35,7 @@ describe(`events`, () => {
         emptyResult = { promises: [] };
 
         successfulPromise = (value) => {           
-            return new Promise ((resolve, reject) => {
+            return new Promise ((resolve) => {
                 resolve(value);
             })
         }

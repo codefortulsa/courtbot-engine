@@ -1,10 +1,13 @@
 const EventEmitter = require(`events`);
 import courtbotError from '../src/courtbotError'
+import log4js from 'log4js';
 import {COURTBOT_ERROR_NAME} from '../src/courtbotError';
 
 class CourtbotEmitter extends EventEmitter {}
 
 const emitter = new CourtbotEmitter();
+
+const logger = log4js.getLogger()
 
 export default emitter;
 
@@ -36,8 +39,8 @@ export function getCaseParties(casenumber, errorMode = 1) {
     })
     .catch((err) => {
       // Raw logging - just to console, not log4js to keep dependencies low
-      console.warn(`events.js getCaseParties() data retrieval raw error on ` + Date() + `:`);
-      console.warn(err);
+      logger.warn(`events.js getCaseParties() data retrieval raw error on ` + Date() + `:`);
+      logger.warn(err);
 
       // Wrap the errors if necessary
       if (err.name !== COURTBOT_ERROR_NAME) {
@@ -99,8 +102,8 @@ export function getCasePartyEvents(casenumber, party, errorMode = 1) {
     })
     .catch((err) => {
       // Raw logging - just to console, not log4js to keep dependencies low
-      console.warn(`events.js getCasePartyEvents() data retrieval raw error on ` + Date() + `:`);
-      console.warn(err);
+      logger.warn(`events.js getCasePartyEvents() data retrieval raw error on ` + Date() + `:`);
+      logger.warn(err);
 
       // Wrap the errors if necessary
       if (err.name !== COURTBOT_ERROR_NAME) {

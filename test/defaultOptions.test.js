@@ -1,7 +1,7 @@
 import setup from './setup';
 
 describe(`defaultOptions`, () => {
-    const {sandbox, expect} = setup();
+    const {expect} = setup();
 
     let testee;
     let noop;

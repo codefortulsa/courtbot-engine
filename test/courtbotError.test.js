@@ -1,7 +1,7 @@
 import setup from './setup';
 
 describe(`courtbotError`, () => {
-    const {sandbox, expect} = setup();
+    const {expect} = setup();
 
     let testee;
 
