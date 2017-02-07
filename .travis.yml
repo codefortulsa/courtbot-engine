@@ -4,4 +4,4 @@ node_js:
   - "6"
 
 after_success:
-  - coveralls
+  - npm run coverage
