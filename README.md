@@ -4,8 +4,9 @@ This repository is the meat of the courtbot functionality, intended to be requir
 
 # Registration Source
 
-In order to store and retreive registrations and sent-messages a registration source must be configured. The easiest way to do that is to use https://github.com/codefortulsa/courtbot-engine-pg to fill this role
+In order to store and retreive registrations and sent-messages a registration source must be configured. The easiest way to do that is to use https://github.com/codefortulsa/courtbot-engine-pg to fill this role.
 
+Example code to fulfill this requirement:
 ``` js
 var courtbot = require("courtbot-engine");
 
@@ -56,6 +57,7 @@ courtbot.setRegistrationSource(function(connectionString) {
 
 In order to send messages and interpret messages from the client, the engine requires a message source to be defined. This provides translations for all the messages.
 
+Example code to fulfill this requirement:
 ``` js
 var courtbot = require('courtbot-engine');
 
