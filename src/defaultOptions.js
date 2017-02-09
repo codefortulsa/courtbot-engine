@@ -13,11 +13,6 @@
    handling is not implemented. I'm hoping that options for a text message reminder system never
    become that complicated.
  */
-
-/* https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign
-   Object.assign() should wrap primitives into the target object, starting with key "0"
-   That does not appear to be happening here, so writing workaround to mimic that.
- */
 export default function (...args) {
   let _optionArray = [];
   let _optionObject = {};
