@@ -6,76 +6,125 @@ This repository is the meat of the courtbot functionality, intended to be requir
 
 In order to store and retreive registrations and sent-messages a registration source must be configured. The easiest way to do that is to use https://github.com/codefortulsa/courtbot-engine-pg to fill this role
 
-TODO: example code
+``` js
+var courtbot = require("courtbot-engine");
 
-# Message Source
+courtbot.setRegistrationSource(function(connectionString) {
+  return {
+    getRegistrationById: function (id) {
+      /* return the registration with the id provided */
+      return Promise.resolve(regs);
+    },
+    getRegistrationsByContact: function(contact, communicationType) {
+      /* return all registrations that are for the contact and type provided */
+      return Promise.resolve(regs);
+    },
+    getRegistrationsByState: function (state) {
+      /* return all registrations in the given state */
+      return Promise.resolve(regs);
+    },
+    createRegistration: function (registration) {
+      /* create a new registration and return its id */
+      return Promise.resolve(1);
+    },
+    updateRegistrationName: function (id, name) {
+      /* update the registration to the name provided */
+      return Promise.resolve();
+    },
+    updateRegistrationState: function (id, state) {
+      /* update the registration to state provided */
+      return Promise.resolve();
+    },
 
-In order to send messages and interpret messages from the client, the engine requires a message source to be defined. This provides translations for all the message.
-
-TODO: example code
-
-# courtbot.addRoutes
-
-The following example adds the necessary routes to your express app:
-
-```js
-courtbot.addRoutes(app, {
-  path: "/sms",
-  dbUrl: process.env.DATABASE_URL,
-  caseData: {
-    getCasePartyEvents: (caseNumber, partyName) => {},
-    getCaseParties: (caseNumber) => {},
-    refreshData: () => {}
-  }
+    getSentMessage: function (contact, communication_type, date, description) {
+      /* get a matching sent message if it exists */
+      return Promise.resolve(msg);
+    },
+    createSentMessage: function (contact, communication_type, date, description) {
+      /* create a record of the sent message */
+      return Promise.resolve();
+    },
+    migrate: function() {
+      /* migrate to the most recent schema */
+      return Promise.resolve();
+    }
+  };
 });
 ```
 
-The `caseData` option should define three functions:
+# Message Source
 
-1. `getCaseParties`
-1. `getCasePartyEvents`
-1. `refreshData`
+In order to send messages and interpret messages from the client, the engine requires a message source to be defined. This provides translations for all the messages.
 
-## getCaseParties
+``` js
+var courtbot = require('courtbot-engine');
 
-Given a case number, it must return a promise that resolves with the parties for the given case. For example:
- 
-```js
-function getCaseParties(caseNumber) {
-  return Promise.resolve([
-    {name: "Mickey Mouse"}, {name: "Minnie Mouse"}
-  ]);
-}
+courtbot.setMessageSource(() => ({
+  remote: function(user, case_number, name) {
+    return "...";
+  },
+  reminder: function(reg, evt) {
+    return "...";
+  },
+  askReminder: function(phone, registration, party) {
+    return "...";
+  },
+  noCaseMessage: function(caseNumber) {
+    return "...";
+  },
+  askPartyAgain: function(text, phone, registration, parties){
+    return "...";
+  },
+  askParty: function(phone, registration, parties) {
+    return "...";
+  },
+  expiredRegistration: function() {
+    return "...";
+  },
+  confirmRegistration: function(phone, pending) {
+    return "...";
+  },
+  cancelRegistration: function(phone, pending) {
+    return "...";
+  },
+  isOrdinal: function(text) {
+    return parseInt(text) > 0;
+  },
+  getOrdinal: function(text) {
+    return parseInt(text);
+  },
+  isYes: function(text) {
+    return text == "YES";
+  },
+  isNo: function(text) {
+    return text == "NO";
+  }
+}));
 ```
 
-## getCasePartyEvents
+# Communication
 
-Given a case number and party name, it must return a promise that resolves with the events party's events (date and description). For example:
+For courtbot to talk to someone via a communication method, you have to add that method.  The following methods exist:
 
-```js
-function getCasePartyEvents(caseNumber, partyName) {
-	return [{
-	  date: "Thursday, December 22, 1982 at 9:00 AM",
-     description: "PRELIMINARY HEARING ISSUE (PUBLIC DEFENDER)"
-   }, {
-	  date: "Thursday, December 31, 1982 at 9:00 AM",
-     description: "PRELIMINARY HEARING ISSUE (PUBLIC DEFENDER)"
-   }];
-}
-```
-
-## refreshData
-
-???
+* SMS: [courtbot-engine-twilio](https://github.com/codefortulsa/courtbot-engine-twilio) or you can get it from [NPM](https://www.npmjs.com/package/courtbot-engine-twilio)
 
 # Usage
 
 ## Express
 
-To add courtbot routes to an epress route, the following code is used:
+The following example adds the necessary routes to your express app:
 
-TODO: exmaple code
+```js
+app.use("/", courtbot.routes({ dbUrl: process.env.DATABASE_URL });
+```
+
+## Console test prompt
+
+To enable the console prompt in a local courbot instance, set the environment variable USE_CONSOLE=1. This will allow you to communicate with courtbot without using twilio.
 
 ## Background Tasks
 
-TODO
+The following functions should be run on a regular basis, at least once per day:
+
+* ```sendDueReminders(options)``` - Sends reminders for cases that are within the reminder period.
+* ```checkMissingCases(options)``` - Looks for cases that were not initially found.
