@@ -203,8 +203,6 @@ describe(`defaultOptions`, () => {
             }
         });
 
-        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/assign,
-        // Object.assign() should wrap numbers, booleans, strings and symbols into the target object, starting with key "0"
         it('should wrap primitives into the object with key "0"', () => {
             expect(testee.default(5)[`0`]).to.equal(5);
             expect(testee.default(true)[`0`]).to.equal(true);
