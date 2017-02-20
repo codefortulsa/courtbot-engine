@@ -1,32 +1,72 @@
 import setup from './setup';
+import proxyquire from 'proxyquire';
 
-describe("sources", () => {
-    const {expect} = setup();
+describe(`sources`, () => {
+    const {expect, sandbox} = setup();
 
     let testee;
     let noop;
 
+    let log4js;
+    let traceStub;
+    let debugStub;
+    let infoStub;
+    let logStub;
+    let warnStub;
+    let errorStub;
+    let fatalStub;
+
+
     beforeEach(() => {
         noop = () => {};
 
-        testee = require(`../src/sources.js`);
+        traceStub = sandbox.stub();
+        debugStub = sandbox.stub();
+        infoStub = sandbox.stub();
+        logStub = sandbox.stub();
+        warnStub = sandbox.stub();
+        errorStub = sandbox.stub();
+        fatalStub = sandbox.stub();
+
+        log4js = {
+            getLogger: sandbox.stub().returns({
+                trace: traceStub,
+                debug: debugStub,
+                info: infoStub,
+                log: logStub,
+                warn: warnStub,
+                error: errorStub,
+                fatal: fatalStub
+            })
+        }
+
+        testee = proxyquire(`../src/sources.js`, {
+            log4js
+        });
     });
 
-    it ("registrationSourceFn should have a default function", () => {
+    it (`registrationSourceFn should have a default function`, () => {
         expect(typeof testee.registrationSourceFn).to.equal(`function`);
     });
 
-    it("function setRegistrationSource should set registrationSouceFn correctly", () => {
+    it(`the default registrationSourceFn should log something to log4js when called`, () => {
+        testee.registrationSourceFn();
+
+        let logged = traceStub.called || debugStub.called || infoStub.called || logStub.called || warnStub.called || errorStub.called || fatalStub.called;
+        expect(logged).to.equal(true);
+    });
+
+    it(`function setRegistrationSource should set registrationSouceFn correctly`, () => {
         testee.setRegistrationSource(noop);
         expect(testee.registrationSourceFn).to.equal(noop);
     });
 
-    it("function setRegistrationSource should return true when set registrationSouceFn correctly", () => {
+    it(`function setRegistrationSource should return true when set registrationSouceFn correctly`, () => {
         expect(testee.setRegistrationSource(noop)).to.equal(true);
     });
 
-    it("function setRegistrationSource should return false when called with a non-function argument", () => {
-        expect(testee.setRegistrationSource(undefined)).to.be.not.ok;
+    it(`function setRegistrationSource should return false when called with a non-function argument`, () => {
+        expect(testee.setRegistrationSource(undefined)).to.equal(false);
         expect(testee.setRegistrationSource(null)).to.equal(false);
         expect(testee.setRegistrationSource(true)).to.equal(false);
         expect(testee.setRegistrationSource(2)).to.equal(false);
@@ -34,9 +74,10 @@ describe("sources", () => {
         expect(testee.setRegistrationSource(`not a function`)).to.equal(false);
         expect(testee.setRegistrationSource(Symbol(`foo`))).to.equal(false);
         expect(testee.setRegistrationSource({key: `value`})).to.equal(false);
+        expect(testee.setRegistrationSource([])).to.equal(false);
     });
 
-    it ("function setRegistrationSource should not override current registrationSourceFn when called with a non-function argument", () => {
+    it(`function setRegistrationSource should not override current registrationSourceFn when called with a non-function argument`, () => {
         testee.registrationSourceFn = noop;
 
         testee.setRegistrationSource(undefined);
@@ -62,22 +103,32 @@ describe("sources", () => {
 
         testee.setRegistrationSource({key: `value`});
         expect(testee.registrationSourceFn).to.equal(noop);
+
+        testee.setRegistrationSource([]);
+        expect(testee.registrationSourceFn).to.equal(noop);
     });
 
-    it ("registrationSourceFn should have a default function", () => {
+    it(`messageSourceFn should have a default function`, () => {
         expect(typeof testee.messageSourceFn).to.equal(`function`);
     });
 
-    it("function setMessageSource should set messageSourceFn correctly", () => {
+    it(`the default messageSourceFn should log something to log4js when called`, () => {
+        testee.messageSourceFn();
+
+        let logged = traceStub.called || debugStub.called || infoStub.called || logStub.called || warnStub.called || errorStub.called || fatalStub.called;
+        expect(logged).to.equal(true);
+    });
+
+    it(`function setMessageSource should set messageSourceFn correctly`, () => {
         testee.setMessageSource(noop);
         expect(testee.messageSourceFn).to.equal(noop);
     });
 
-    it("function setMessageSource should return a truthy value when setting messageSourceFn correctly", () => {
+    it(`function setMessageSource should return a truthy value when setting messageSourceFn correctly`, () => {
         expect(testee.setMessageSource(noop)).to.equal(true);
     });
 
-    it("function setMessageSource should return a falsy value when called with a non-function argument", () => {
+    it(`function setMessageSource should return a false when called with a non-function argument`, () => {
         expect(testee.setMessageSource(undefined)).to.equal(false);
         expect(testee.setMessageSource(null)).to.equal(false);
         expect(testee.setMessageSource(true)).to.equal(false);
@@ -86,9 +137,10 @@ describe("sources", () => {
         expect(testee.setMessageSource(`not a function`)).to.equal(false);
         expect(testee.setMessageSource(Symbol(`foo`))).to.equal(false);
         expect(testee.setMessageSource({key: `value`})).to.equal(false);
+        expect(testee.setMessageSource([])).to.equal(false);
     });
 
-    it ("function setMessageSource should not override current messageSourceFn when called with a non-function argument", () => {
+    it(`function setMessageSource should not override current messageSourceFn when called with a non-function argument`, () => {
         testee.messageSourceFn = noop;
 
         testee.setMessageSource(undefined);
@@ -114,8 +166,8 @@ describe("sources", () => {
 
         testee.setMessageSource({key: `value`});
         expect(testee.messageSourceFn).to.equal(noop);
-    });
-    it ("registrationSourceFn should have a default function", () => {
-        expect(typeof testee.messageSourceFn).to.equal(`function`);
+
+        testee.setMessageSource([]);
+        expect(testee.messageSourceFn).to.equal(noop);
     });
 });
