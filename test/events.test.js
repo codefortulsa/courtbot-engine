@@ -29,9 +29,9 @@ describe(`events`, () => {
     let retrieveErrorStub;
     let emptyResult;
 
-    let dummyTo;
+/*    let dummyTo;
     let dummyMsg;
-    let dummyCommunicationType;
+    let dummyCommunicationType; */
 
     let log4js;
     let traceStub;

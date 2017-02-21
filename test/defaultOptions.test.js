@@ -6,7 +6,6 @@ describe(`defaultOptions`, () => {
     let testee;
     let noop;
     let sym = Symbol(`foo`);
-    let sym2 = Symbol(`bar`);
 
     beforeEach(() => {
         noop = () => {}
