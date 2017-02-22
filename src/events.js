@@ -2,7 +2,7 @@ const EventEmitter = require(`events`);
 import courtbotError from '../src/courtbotError';
 import log4js from 'log4js';
 import {COURTBOT_ERROR_NAME, COURTBOT_ERROR_TYPES} from '../src/courtbotError';
-import {deepFlattenArray} from '../src/utils';
+import {default as _} from 'lodash/array';
 
 class CourtbotEmitter extends EventEmitter {}
 
@@ -58,7 +58,7 @@ export function getCaseParties(casenumber, errorMode = 1) {
         }
       }
       else if (Array.isArray(foundParties)) {
-        foundParties = deepFlattenArray(foundParties);
+        foundParties = _.flattenDeep(foundParties);
         let faults = 0;
 
         // Attempt to add each element in the passed array before returning a rejected promise

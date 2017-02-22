@@ -1,31 +1,5 @@
 /* Various Utility Functions */
 
-/* array: array to deep flatten, preserving order of elements
- *     All elements in sub-arrays are placed in the top level
- *     Arrays wrapped inside objects are not altered
- *     TO DO, POSSIBLY: Place this and other functions (scrubObject, scrubArray from defaultOptions.js) in utils.js
- */
-export function deepFlattenArray(passedArray) {
-  // For now, deciding against returning the passed parameter, even though that means
-  // using the function properly requires an additional test upstream
-  if (!Array.isArray(passedArray)) return false;
-
-  let arr = [];
-
-  passedArray.forEach((elem) => {
-    if (Array.isArray(elem)) {
-      deepFlattenArray(elem).forEach((e) => {
-        arr.push(e);
-      });
-    }
-    else {
-      arr.push(elem);
-    }
-  });
-
-  return arr;
-}
-
 /* This function removes functions, null and undefined from an array, mainly to avoid some super
  * hacker including functions that interact in unexpected ways with code farther down the line.
  *
