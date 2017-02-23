@@ -4,7 +4,7 @@ import { COURTBOT_ERROR_TYPES } from '../src/courtbotError';
 import proxyquire from 'proxyquire';
 
 describe(`events`, () => {
-    const {sandbox, expect} = setup();
+    const {sandbox, expect, chance} = setup();
 
     let testee;
     let emitter;
@@ -23,10 +23,6 @@ describe(`events`, () => {
 
     let retrieveErrorStub;
     let emptyResult;
-
-/*    let dummyTo;
-    let dummyMsg;
-    let dummyCommunicationType; */
 
     let log4js;
     let traceStub;
@@ -489,12 +485,13 @@ describe(`events`, () => {
         });
     });
 
-/* I don't yet understand this functionality well enough to define it through unit tests
 describe(`sendNonReplyMessage`, () => {
+        let dummyTo, dummyMsg, dummyCommunicationType;
+
         beforeEach(() => {
-            dummyTo = -1;
-            dummyMsg = -1;
-            dummyCommunicationType = -1;
+            dummyTo = chance.phone();
+            dummyMsg = chance.word();
+            dummyCommunicationType = chance.word();
         });
 
         it(`the emitter should emit the send-non-reply event`, () => {
@@ -502,17 +499,25 @@ describe(`sendNonReplyMessage`, () => {
         });
 
         it(`should pass the an address, msg, communication type and the empty result object to the event listener`, () => {
-            return expect(() => {testee.sendNonReplyMessage(dummyTo, dummyMsg, dummyCommunicationType)}).to.emitFrom(emitter, `send-non-reply`, dummyTo, dummyMsg, dummyCommunicationType, emptyResult);
+            return expect(() => {testee.sendNonReplyMessage(dummyTo, dummyMsg, dummyCommunicationType)}).to.emitFrom(emitter, `send-non-reply`, {to: dummyTo, msg: dummyMsg, communicationType: dummyCommunicationType, result: emptyResult});
         });
 
         it('should return result.promise if result.promise is set', () => {
+            const prom = new Promise(function() {});
             emitter.on(`send-non-reply`, (o) => {
-                o.result.promise = true;
+                o.result.promise = prom;
             });
 
-            testee.sendNonReplyMessage(dummyTo, dummyMsg, dummyCommunicationType).then(() => {
-
-            });
+            expect(testee.sendNonReplyMessage(dummyTo, dummyMsg, dummyCommunicationType)).to.eql(prom);
         });
-    }); */
+
+        it('should return result.promises wrapped in an all if result.promises is set', () => {
+            const prom = new Promise(function() {});
+            emitter.on(`send-non-reply`, (o) => {
+                o.result.promises = [prom];
+            });
+
+            expect(testee.sendNonReplyMessage(dummyTo, dummyMsg, dummyCommunicationType)).to.eql(Promise.all([prom]));
+        });
+    });
 });

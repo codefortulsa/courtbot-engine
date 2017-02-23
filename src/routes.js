@@ -1,6 +1,6 @@
 import express from "express";
 import completeOptions from "./defaultOptions";
-import { registrationSourceFn, messageSourceFn } from "./sources";
+import { registrationSourceFn } from "./sources";
 import emitter from "./events";
 
 //TODO: move to outside of the engine.
@@ -11,8 +11,6 @@ export default function(opt) {
   var options = completeOptions(opt);
 
   var registrationSource = registrationSourceFn(options.dbUrl);
-  var messageSource = messageSourceFn(options);
-
   //TODO: move to outside of the engine.
   if(opt.ConsoleREPL)
     ConsoleREPL("", options);
@@ -25,7 +23,7 @@ export default function(opt) {
   });
 
   registrationSource.migrate().then(() =>
-    emitter.emit("add-routes", {router, options, registrationSource, messageSource})
+    emitter.emit("add-routes", {router, options, registrationSource})
   );
 
   return router;

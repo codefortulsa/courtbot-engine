@@ -2,14 +2,14 @@ import registrationState from "./registrationState";
 import EventEmitter from "events";
 import log4js from "log4js";
 import {getCaseParties} from "./events";
+import messaging from "./messaging";
 
 export default class CourtbotConversation extends EventEmitter {
-  constructor(conversationType, registrationSource, messageSource) {
+  constructor(conversationType, registrationSource) {
     super();
 
     this.conversationType = conversationType;
     this.registrationSource = registrationSource;
-    this.messageSource = messageSource;
 
     this.logger = log4js.getLogger("CourtbotConversation");
   }
@@ -41,13 +41,16 @@ export default class CourtbotConversation extends EventEmitter {
   }
 
   finalQuestion(conversation, text, from) {
-    if(this.messageSource.isYes(text)) {
-      return this.emitReply(this.messageSource.confirmRegistration(from, conversation))
+    if(messaging.isYes(text)) {
+      return this.emitReply(messaging.confirmRegistration(from, conversation))
       .then(() => this.registrationSource.updateRegistrationState(conversation.registration_id, registrationState.REMINDING));
     }
-    else if(this.messageSource.isNo(text)) {
-      return this.emitReply(this.messageSource.cancelRegistration(from, conversation))
+    else if(messaging.isNo(text)) {
+      return this.emitReply(messaging.cancelRegistration(from, conversation))
       .then(() => this.registrationSource.updateRegistrationState(conversation.registration_id, registrationState.UNSUBSCRIBED));
+    }
+    else {
+      return this.emitReply(messaging.badMessage(text, messaging.askReminder(from, conversation, conversation.party)))
     }
   }
 
@@ -55,8 +58,8 @@ export default class CourtbotConversation extends EventEmitter {
     getCaseParties(conversation.case_number)
       .then(parties => {
         var matching;
-        if(this.messageSource.isOrdinal(text)) {
-          var ord = this.messageSource.getOrdinal(text);
+        if(messaging.isOrdinal(text)) {
+          var ord = messaging.getOrdinal(text);
           this.logger.info(`trying to choose party number: ${ord} (number of parties: ${parties.length})`);
           if(ord > 0 && ord <= parties.length) {
             matching = parties[ord - 1];
@@ -72,11 +75,11 @@ export default class CourtbotConversation extends EventEmitter {
 
         if(matching) {
           this.registrationSource.updateRegistrationName(conversation.registration_id, matching.name)
-            .then(() => this.emitReply(this.messageSource.askReminder(from, conversation, matching)))
+            .then(() => this.emitReply(messaging.askReminder(from, conversation, matching)))
             .then(() => this.registrationSource.updateRegistrationState(conversation.registration_id, registrationState.ASKED_REMINDER));
         } else {
           this.logger.info(`did not find any parties for text: ${text}.`);
-          this.emitReply(this.messageSource.askPartyAgain(text, from, conversation, parties));
+          this.emitReply(messaging.badMessage(text, messaging.askParty(from, conversation, parties)));
         }
       });
   }
@@ -95,17 +98,17 @@ export default class CourtbotConversation extends EventEmitter {
       this.logger.info("parties found for new registration", parties);
       if(parties.length > 1) {
         this.logger.info("more than 1 party found!");
-        return this.emitReply(this.messageSource.askParty(from, registration, parties))
+        return this.emitReply(messaging.askParty(from, registration, parties))
           .then(() => this.registrationSource.updateRegistrationState(registration.registration_id, registrationState.ASKED_PARTY));
       }
       else if(parties.length == 1) {
         this.logger.info("exactly one party found!");
         return this.registrationSource.updateRegistrationName(registration.registration_id, parties[0].name)
-          .then(() => this.emitReply(this.messageSource.askReminder(from, registration, parties[0])))
+          .then(() => this.emitReply(messaging.askReminder(from, registration, parties[0])))
           .then(() => this.registrationSource.updateRegistrationState(registration.registration_id, registrationState.ASKED_REMINDER));
       }
       else {
-        return this.emitReply(this.messageSource.noCaseMessage(text));
+        return this.emitReply(messaging.noCaseMessage(text));
       }
     }))
     .catch(err => this.logger.info("Error occured during registration", err));

@@ -1,17 +1,17 @@
 import moment from "moment";
 import { sendNonReplyMessage } from "./events";
 import completeOptions from "./defaultOptions";
-import { registrationSourceFn, messageSourceFn } from "./sources";
+import { registrationSourceFn } from "./sources";
 import registrationState from "./registrationState";
 import {getCasePartyEvents} from "./events";
 import log4js from "log4js";
+import messaging from "./messaging";
 
 const log = log4js.getLogger("send-due-reminders");
 
 export default function(opt) {
   var options = completeOptions(opt);
   var registrationSource = registrationSourceFn(options.dbUrl);
-  var messageSource = messageSourceFn(options);
 
   return registrationSource.getRegistrationsByState(registrationState.REMINDING)
   .then(registrations => {
@@ -32,11 +32,11 @@ export default function(opt) {
             return registrationSource.getSentMessage(r.contact, r.communication_type, r.name, e.date, e.description)
               .then(d => {
                 if(d.length == 0) {
-                  var message = messageSource.reminder(r, e);
+                  var message = messaging.reminder(r, e);
                   return sendNonReplyMessage(r.phone, message, r.communication_type)
                     .then(() => registrationSource.createSentMessage(r.contact, r.communication_type, r.name, e.date, e.description));
                 } else {
-                  log.info("already sent ", messageSource.reminder(r, e), "to", r.phone);
+                  log.info("already sent ", messaging.reminder(r, e), "to", r.phone);
                 }
               })
           }));
