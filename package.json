@@ -1,6 +1,6 @@
 {
   "name": "courtbot-engine",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "An engine for courtbot-like functionality to be included in city/county services sites.",
   "main": "index.js",
   "scripts": {
