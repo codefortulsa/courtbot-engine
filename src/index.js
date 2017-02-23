@@ -1,3 +1,5 @@
+import "messaging-en";
+
 export { setRegistrationSource } from "./sources";
 export { default as registrationState } from "./registrationState";
 export { default as routes } from "./routes";
