@@ -2,7 +2,7 @@ const EventEmitter = require(`events`);
 import courtbotError from './courtbotError';
 import log4js from 'log4js';
 import {COURTBOT_ERROR_NAME, COURTBOT_ERROR_TYPES} from './courtbotError';
-import {default as _} from 'lodash/array';
+import _ from "lodash";
 
 class CourtbotEmitter extends EventEmitter {}
 
@@ -12,108 +12,80 @@ const logger = log4js.getLogger();
 
 export default emitter;
 
+function wrapPromises(promises) {
+    const wrappedPromises = promises
+        .map(p => p.then(r => ({result: r})).catch(e => ({error: e})));
+
+    //Now Promise.all will return all success/errors
+    return Promise.all(wrappedPromises).then(resultObjects => {
+        return resultObjects.reduce((aggregate, item) => {
+            item.error
+                ? aggregate.errors.push(item.error)
+                : aggregate.results.push(item.result);
+
+            return aggregate;
+        }, {errors: [], results: []});
+    });
+}
+
 /* casenumber: string holding the casenumber to look up
- * errorMode: 2-bit integer that determines how errors are handled:
- *     1s bit - whether the retrieve-parties-error event is emitted with error information
- *     2s bit - whether the error information is also returned along with the parties found { parties: [], errors: [] }
+ * options:
+ *     emitErrorEvent - whether the retrieve-parties-error event is emitted with error information
+ *     returnErrorsWithData - whether the error information is also returned along with the parties found { parties: [], errors: [] }
  */
-export function getCaseParties(casenumber, errorMode = 1) {
+export function getCaseParties(casenumber, options) {
   const result = {
     promises: []
   }
+
+  const {emitErrorEvent, returnErrorsWithData} =
+      Object.assign(
+        {emitErrorEvent: true, returnErrorsWithData: false},
+        options
+      );
 
   // emit runs synchronously because I/O is not involved, so result will always be populated
   // before further functions are called.
   emitter.emit(`retrieve-parties`, casenumber, result);
 
-  // Use a set to screen out exact duplicates
-  let resultSet = new Set();
-  let results = [];
-  let errors = [];
+  return wrapPromises(result.promises).then(results => {
+      // Use a set to screen out exact duplicates
+      const resultSet = new Set();
 
-  // instead of Promise.all(), use reduce() to catch all errors, but still return valid values
-  return result.promises.reduce((chain, dataPromise) => {
-    // First glue all the promises together with error handling...
-    return chain.then(() => {
-      return dataPromise;
-    })
-    .then((foundParties) => {
-      // Soft Assert: foundParties is one of:
-      //    * a string containing a CSV list of names
-      //    * an object whose `name` property contains a CSV list of names
-      //    * an array of objects whose `name` properties contains a CSV list of names
-      if (typeof foundParties === `string`) {
-        foundParties.split(`,`).forEach((elem) => {
-          resultSet.add(elem.trim());
-        });
-      }
-      else if (Object.prototype.toString.call(foundParties) === `[object Object]`) {
-        if (foundParties.hasOwnProperty(`name`)) {
-          foundParties.name.split(`,`).forEach((elem) => {
-            resultSet.add(elem.trim());
-          });
-        }
-        else {
-          return Promise.reject(new courtbotError({ type: COURTBOT_ERROR_TYPES.API.GET, case: casenumber, timestamp: Date(), message: `Data object returned from API did not contain the "name" property` }));
-        }
-      }
-      else if (Array.isArray(foundParties)) {
-        foundParties = _.flattenDeep(foundParties);
-        let faults = 0;
+      const errors = results.errors;
 
-        // Attempt to add each element in the passed array before returning a rejected promise
-        foundParties.forEach((elem) => {
-          if (Object.prototype.toString.call(elem) === `[object Object]`) {
-            if (elem.hasOwnProperty(`name`)) {
-              resultSet.add(elem.name);
-            }
-            else {
-              faults++;
-            }
+      //flatten the result sets (change [[a, b], c, d] to [a, b, c, d])
+      var flattenedData = _.flattenDeep(results.results);
+
+      flattenedData.forEach(party => {
+          //each item can be a string or an object with a name
+          //property
+          if(!party || party === "") {
+              errors.push({ message: "Party cannot be empty" })
+          } else if(party.hasOwnProperty("name") && (typeof party) !== "function") {
+              resultSet.add(party.name.trim());
+          } else if ((typeof party) === "string") {
+              resultSet.add(party.trim());
+          } else {
+              errors.push({ message: "Error parsing party", object: party});
           }
-          else {
-            faults++;
-          }
-        });
+      });
 
-        if (faults) return Promise.reject(new courtbotError({ type: COURTBOT_ERROR_TYPES.API.GET, case: casenumber, timestamp: Date(), message: `${faults} data items in array returned from API did not contain the "name" property` }));
-      }
-      else {
-        return Promise.reject(new courtbotError({ type: COURTBOT_ERROR_TYPES.API.GET, case: casenumber, timestamp: Date(), message: `Data returned from API did not match allowed formats [string, { name: string }]` }));
-      }
-    })
-    .catch((err) => {
-      logger.warn(`events.js getCaseParties() data retrieval raw error on ` + Date() + `:`);
-      logger.warn(err);
+      const wrappedErrors = _.map(errors, err => new courtbotError({ type: COURTBOT_ERROR_TYPES.API.GET, case: casenumber, timestamp: Date(), initialError: typeof err === 'object' ? err : {data: err} }));
 
-      // Wrap the errors if necessary
-      if (err.name !== COURTBOT_ERROR_NAME) {
-        let wrappedError = new courtbotError({ type: COURTBOT_ERROR_TYPES.API.GENERAL, case: casenumber, timestamp: Date(), initialError: typeof err === 'object' ? err : {data: err} });
-        errors = errors.concat(wrappedError);
-      }
-      else {
-        errors = errors.concat(err);
+      if(errors.length) {
+        logger.error(wrappedErrors);
+        if(emitErrorEvent) emitter.emit("retrieve-parties-error", wrappedErrors);
       }
 
-      return true;
-    });
-  }, Promise.resolve())
-  // ... then we return the results
-  .then(() => {
-    // Emit the retrieve-parties-error first. Like retrieve-parties, it runs synchronously because there's no I/O
-    if (errorMode % 2) emitter.emit(`retrieve-parties-error`, errors);
-
-    // Split the set back out into an array of { name: `party-name` }
-    for (let i of resultSet) results.push({ name: i });
-
-    // Add the errors to the return value if dictated by errorMode
-    if ((errorMode >> 1) % 2) {
-      results = {
-        parties: results,
-        errors: errors
+      if(returnErrorsWithData) {
+        return {
+          errors: wrappedErrors,
+          parties: _.map([...resultSet], r => ({name: r}))
+        };
+      } else {
+        return _.map([...resultSet], r => ({name: r}));
       }
-    }
-    return results;
   });
 }
 
