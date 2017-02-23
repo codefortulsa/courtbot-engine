@@ -6,7 +6,7 @@
   "scripts": {
     "test": "nyc mocha && npm run lint",
     "coverage": "nyc report --reporter=text-lcov | coveralls",
-    "test-watch": "mocha --watch",
+    "test-watch": "mocha --watch --reporter list",
     "build": "rm -rf lib && babel --presets es2015 src --out-dir lib",
     "release": "npm run test && npm run build && release && npm publish",
     "lint": "eslint src/ test/ --ext .js, .jsx --ignore-path .eslintignore"
