@@ -1,40 +1,45 @@
 import proxyquire from "proxyquire";
 import setup from './setup';
 import registrationState from "../src/registrationState";
+import EventEmitter from "events";
 
 describe("CourtbotConversation", () => {
   const {sandbox, chance, expect} = setup();
 
   let conversationType;
   let registrationSource;
-  let messageSource;
   let getCasePartiesStub;
   let getLoggerStub;
   let logger;
   let ConversationClass;
   let conversation;
+  let emitter;
+  let events;
 
   beforeEach(() => {
     conversationType = chance.word();
     registrationSource = {};
-    messageSource = {};
     logger = {
       info: sandbox.stub(),
       debug: sandbox.stub(),
     };
     getCasePartiesStub = sandbox.stub();
     getLoggerStub = sandbox.stub().returns(logger);
+    emitter = new EventEmitter();
+    events = { default: emitter, getCaseParties: getCasePartiesStub };
     ConversationClass = proxyquire("../src/conversation", {
       log4js: { getLogger: getLoggerStub },
-      "./events": { getCaseParties: getCasePartiesStub }
+      "./events": events,
+      "./messaging": proxyquire("../src/messaging", {
+        "./events": events
+      })
     }).default;
-    conversation = new ConversationClass(conversationType, registrationSource, messageSource);
+    conversation = new ConversationClass(conversationType, registrationSource);
   });
 
   it("has the correct settings", () => {
     expect(conversation.conversationType).to.equal(conversationType);
     expect(conversation.registrationSource).to.equal(registrationSource);
-    expect(conversation.messageSource).to.equal(messageSource);
   });
 
   it("creates a class level loger", () => {
@@ -129,10 +134,6 @@ describe("CourtbotConversation", () => {
     beforeEach(() => {
       from = chance.phone();
       msg = chance.paragraph();
-      messageSource.isYes = sandbox.stub();
-      messageSource.isNo = sandbox.stub();
-      messageSource.confirmRegistration = sandbox.stub();
-      messageSource.cancelRegistration = sandbox.stub();
       registrationSource.updateRegistrationState = sandbox.stub();
 
       conv = {
@@ -142,18 +143,25 @@ describe("CourtbotConversation", () => {
     });
 
     it("sets the registration state to REMINDING if the response counts as yes", () => {
-      messageSource.isYes.returns(true);
+      emitter.on("courtbot-messaging-is-yes", evt => evt.result = true);
+      const eventStub = sandbox.stub();
+      const noMessage = "NO MESSAGE PROVIDED";
+      emitter.on("courtbot-messaging-confirm-registration", eventStub);
+
       return conversation.finalQuestion(conv, msg, from).then(() => {
         expect(registrationSource.updateRegistrationState).to.have.been.calledWith(conv.registration_id, registrationState.REMINDING);
-        expect(messageSource.confirmRegistration).to.have.been.calledWith(from, conv);
+        expect(eventStub).to.have.been.calledWith({phone: from, pending: conv, message: noMessage});
       });
     });
 
     it("sets the registration state to UNSUBSCRIBED if the response counts as no", () => {
-      messageSource.isNo.returns(true);
+      emitter.on("courtbot-messaging-is-no", evt => evt.result = true);
+      const eventStub = sandbox.stub();
+      const noMessage = "NO MESSAGE PROVIDED";
+      emitter.on("courtbot-messaging-cancel-registration", eventStub);
       return conversation.finalQuestion(conv, msg, from).then(() => {
         expect(registrationSource.updateRegistrationState).to.have.been.calledWith(conv.registration_id, registrationState.UNSUBSCRIBED);
-        expect(messageSource.cancelRegistration).to.have.been.calledWith(from, conv);
+        expect(eventStub).to.have.been.calledWith({phone: from, pending: conv, message: noMessage});
       });
     });
 
