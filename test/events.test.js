@@ -81,7 +81,7 @@ describe(`events`, () => {
         retrieveErrorStub = sandbox.stub();
         emptyResult = { promises: [] };
 
-        successfulPromise = (value) => {           
+        successfulPromise = (value) => {
             return new Promise ((resolve) => {
                 resolve(value);
             })
@@ -129,7 +129,7 @@ describe(`events`, () => {
         });
 
         it(`if no errors in data retrieval, should handle an object whose "name" property is a CSV string`, () => {
-            dummyPartyCSVObject = { name: `a,b,c` };         
+            dummyPartyCSVObject = { name: `a,b,c` };
 
             emitter.on(`retrieve-parties`, (casenumber, result) => {
                 result.promises.push(successfulPromise(dummyPartyCSVObject));
@@ -142,7 +142,7 @@ describe(`events`, () => {
             dummyPartyCSVString = `a,b`;
             dummyPartyCSVObject = {name: `c,d`};
             dummyPartyArray = [{name: `e,f` }, {name: `g,h`}];
-            let output = [{name: `a`}, {name: `b`}, {name: `c`}, {name: `d`}, {name: `e`}, {name: `f`}, {name: `g`}, {name: `h`}];
+            let output = [{name: `a`}, {name: `b`}, {name: `c`}, {name: `d`}, {name: `e,f`}, {name: `g,h`}];
 
             emitter.on(`retrieve-parties`, (casenumber, result) => {
                 result.promises.push(successfulPromise(dummyPartyCSVString));
@@ -369,7 +369,7 @@ describe(`events`, () => {
         });
     });
 
-    describe(`getCasePartyEvents()`, () => {        
+    describe(`getCasePartyEvents()`, () => {
         it(`the emitter should emit the retrieve-party-events event`, () => {
             return expect(testee.getCasePartyEvents).to.emitFrom(emitter, `retrieve-party-events`);
         });
