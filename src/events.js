@@ -65,9 +65,7 @@ export function getCaseParties(casenumber, errorMode = 1) {
         foundParties.forEach((elem) => {
           if (Object.prototype.toString.call(elem) === `[object Object]`) {
             if (elem.hasOwnProperty(`name`)) {
-              elem.name.split(`,`).forEach((e) => {
-                resultSet.add(e.trim());
-              });
+              resultSet.add(elem.name);
             }
             else {
               faults++;
@@ -81,7 +79,7 @@ export function getCaseParties(casenumber, errorMode = 1) {
         if (faults) return Promise.reject(new courtbotError({ type: COURTBOT_ERROR_TYPES.API.GET, case: casenumber, timestamp: Date(), message: `${faults} data items in array returned from API did not contain the "name" property` }));
       }
       else {
-        return Promise.reject(new courtbotError({ type: COURTBOT_ERROR_TYPES.API.GET, case: casenumber, timestamp: Date(), message: `Data returned from API did not match allowed formats [CSV-string, { name: CSV-string }]` }));
+        return Promise.reject(new courtbotError({ type: COURTBOT_ERROR_TYPES.API.GET, case: casenumber, timestamp: Date(), message: `Data returned from API did not match allowed formats [string, { name: string }]` }));
       }
     })
     .catch((err) => {
