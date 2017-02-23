@@ -53,57 +53,6 @@ courtbot.setRegistrationSource(function(connectionString) {
 });
 ```
 
-# Message Source
-
-In order to send messages and interpret messages from the client, the engine requires a message source to be defined. This provides translations for all the messages.
-
-Example code to fulfill this requirement:
-``` js
-var courtbot = require('courtbot-engine');
-
-courtbot.setMessageSource(() => ({
-  remote: function(user, case_number, name) {
-    return "...";
-  },
-  reminder: function(reg, evt) {
-    return "...";
-  },
-  askReminder: function(phone, registration, party) {
-    return "...";
-  },
-  noCaseMessage: function(caseNumber) {
-    return "...";
-  },
-  askPartyAgain: function(text, phone, registration, parties){
-    return "...";
-  },
-  askParty: function(phone, registration, parties) {
-    return "...";
-  },
-  expiredRegistration: function() {
-    return "...";
-  },
-  confirmRegistration: function(phone, pending) {
-    return "...";
-  },
-  cancelRegistration: function(phone, pending) {
-    return "...";
-  },
-  isOrdinal: function(text) {
-    return parseInt(text) > 0;
-  },
-  getOrdinal: function(text) {
-    return parseInt(text);
-  },
-  isYes: function(text) {
-    return text == "YES";
-  },
-  isNo: function(text) {
-    return text == "NO";
-  }
-}));
-```
-
 # Communication
 
 For courtbot to talk to someone via a communication method, you have to add that method.  The following methods exist:
