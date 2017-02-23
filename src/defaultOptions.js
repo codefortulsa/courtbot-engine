@@ -1,4 +1,4 @@
-import {scrubArray, scrubObject} from '../src/utils';
+import {scrubArray, scrubObject} from './utils';
 
 /* This function returns an options object with at least a default dbURL property
 
