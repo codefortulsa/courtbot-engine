@@ -1,4 +1,4 @@
-import "messaging-en";
+import "./messaging-en";
 
 export { setRegistrationSource } from "./sources";
 export { default as registrationState } from "./registrationState";

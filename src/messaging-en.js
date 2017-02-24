@@ -9,13 +9,13 @@ evt.message = `Reminder: It appears you have an event on ${evt.evt.date}
 description: ${evt.evt.description}. You should confirm your case date and time by going to ${process.env.COURT_PUBLIC_URL}. - ${process.env.COURTBOT_TITLE}`);
 
 emitter.on("courtbot-messaging-ask-reminder", evt =>
-evt.message = `We found a case for ${evt.party}. Would you like a courtesy reminder the day before any events? (reply YES or NO)`);
+evt.message = `We found a case for ${evt.party.name}. Would you like a courtesy reminder the day before any events? (reply YES or NO)`);
 
 emitter.on("courtbot-messaging-ask-party", evt =>
 evt.message = `We found a case for multiple parties, please specify which party you are by entering the number shown:
 
-${evt.parties.map((p, i) => `${i} - ${p}
-`)}`);
+${evt.parties.map((p, i) => `${i + 1} - ${p.name}
+`).join("")}`);
 
 emitter.on("courtbot-messaging-expired-registration", evt =>
 evt.message = `We haven't been able to find your court case. You can go to ${process.env.process.env.COURT_PUBLIC_URL} for more information. - ${process.env.COURTBOT_TITLE}`);

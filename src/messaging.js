@@ -23,13 +23,13 @@ export function askReminder(phone, registration, party) {
 export function noCaseMessage(caseNumber) {
   const evt = {caseNumber, message: noMessage};
   emitter.emit("courtbot-messaging-no-case-message", evt);
-  return evt;
+  return evt.message;
 }
 
 export function askParty(phone, registration, parties) {
   const evt = {phone, registration, parties, message: noMessage};
   emitter.emit("courtbot-messaging-ask-party", evt);
-  return evt;
+  return evt.message;
 }
 
 export function expiredRegistration() {

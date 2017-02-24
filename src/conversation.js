@@ -50,7 +50,7 @@ export default class CourtbotConversation extends EventEmitter {
       .then(() => this.registrationSource.updateRegistrationState(conversation.registration_id, registrationState.UNSUBSCRIBED));
     }
     else {
-      return this.emitReply(messaging.badMessage(text, messaging.askReminder(from, conversation, conversation.party)))
+      return this.emitReply(messaging.badMessage(text, messaging.askReminder(from, conversation, {name: conversation.name})))
     }
   }
 
