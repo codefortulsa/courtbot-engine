@@ -1,0 +1,24 @@
+#!/bin/bash
+if [ $# -eq 0 ]
+  then
+    echo "Continuing execution even if command fails..."
+    set -v
+  else
+    echo "Running in travis mode..."
+    set -ev
+fi
+npm run build
+
+rm *.tgz || echo "NO files to clean up"
+npm pack
+TGZ_FILE=$(ls *.tgz)
+
+git clone https://github.com/codefortulsa/courtbot.git
+
+pushd courtbot
+npm install
+npm install ../$TGZ_FILE
+./run-cucumber "$@"
+popd
+rm *.tgz
+rm -rf courtbot

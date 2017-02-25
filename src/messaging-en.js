@@ -26,10 +26,10 @@ evt.message = `We'll attempt to send you a reminder for any upcoming events rela
 emitter.on("courtbot-messaging-cancel-registration", evt =>
 evt.message = `Registration cancelled.`);
 
-emitter.on("courtbot-messaging-is-ordinal", evt => evt.result = parseInt(evt.text) > 0)
-emitter.on("courtbot-messaging-get-ordinal", evt => evt.result = parseInt(evt.text))
-emitter.on("courtbot-messaging-is-yes", evt => evt.result = evt.text.trim().toUpperCase() === "YES")
-emitter.on("courtbot-messaging-is-no", evt => evt.result = evt.text.trim().toUpperCase() === "NO")
+emitter.on("courtbot-messaging-is-ordinal", evt => evt.result = evt.text.match(/^\d+$/));
+emitter.on("courtbot-messaging-get-ordinal", evt => evt.result = parseInt(evt.text));
+emitter.on("courtbot-messaging-is-yes", evt => evt.result = evt.text.trim().toUpperCase() === "YES");
+emitter.on("courtbot-messaging-is-no", evt => evt.result = evt.text.trim().toUpperCase() === "NO");
 
 emitter.on("courtbot-messaging-no-case-message", () => null); //NEEDS MESSAGE!
 
