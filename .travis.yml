@@ -1,7 +1,14 @@
 language: node_js
 
+services:
+  - postgresql
+
 node_js:
   - "6"
+
+script:
+  - npm test
+  - ./run-courtbot-cucumber travis
 
 after_success:
   - npm run coverage
