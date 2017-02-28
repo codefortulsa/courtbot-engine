@@ -25,6 +25,8 @@ export default function(opt) {
           var theDate = isNaN(moment(x.date)) ? moment(x.date.replace(" at ", " "), "dddd, MMMM D, YYYY h:mm A") : moment(x.date);
           var theDiff = theDate.diff(moment(), 'days', true);
 
+          x.date = theDate.local().format("LLL");
+
           var isInReminderPeriod = theDiff < options.reminderDaysOut && theDiff >= 0;
 
           log.debug(`Event at ${theDiff} days out, which ${isInReminderPeriod ? "is" : "is not"} in the reminder period of ${options.reminderDaysOut}.`);
