@@ -22,7 +22,7 @@ export default function(opt) {
     return Promise.all(registrations.map(r => {
       return getCasePartyEvents(r.case_number, r.name)
         .then(events => events.filter(x => {
-          var theDate = moment(x.date.replace(" at ", " "), "dddd, MMMM D, YYYY h:mm A");
+          var theDate = isNaN(moment(x.date)) ? moment(x.date.replace(" at ", " "), "dddd, MMMM D, YYYY h:mm A") : moment(x.date);
           var theDiff = theDate.diff(moment(), 'days');
           log.debug(`Event at ${theDiff} days out.`);
           return theDiff < options.reminderDaysOut && theDiff > 0;
