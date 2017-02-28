@@ -23,9 +23,13 @@ export default function(opt) {
       return getCasePartyEvents(r.case_number, r.name)
         .then(events => events.filter(x => {
           var theDate = isNaN(moment(x.date)) ? moment(x.date.replace(" at ", " "), "dddd, MMMM D, YYYY h:mm A") : moment(x.date);
-          var theDiff = theDate.diff(moment(), 'days');
-          log.debug(`Event at ${theDiff} days out.`);
-          return theDiff < options.reminderDaysOut && theDiff > 0;
+          var theDiff = theDate.diff(moment(), 'days', true);
+
+          var isInReminderPeriod = theDiff < options.reminderDaysOut && theDiff >= 0;
+
+          log.debug(`Event at ${theDiff} days out, which ${isInReminderPeriod ? "is" : "is not"} in the reminder period of ${options.reminderDaysOut}.`);
+
+          return isInReminderPeriod;
         }))
         .then(events => {
           return Promise.all(events.map(e => {
