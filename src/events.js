@@ -168,3 +168,20 @@ export function sendNonReplyMessage(to, msg, communicationType) {
 
   return Promise.resolve(result);
 }
+
+export function verifyContact(contact, communicationType) {
+  const result = {promises: []};
+  logger.debug("Attempting to verify contact", {contact, communicationType});
+
+  emitter.emit("verify-contact", {contact, communicationType, result});
+
+  if(result.promise) {
+    return result.promise;
+  }
+
+  if(result.promises.length) {
+    return Promise.all(result.promises);
+  }
+
+  return Promise.resolve(result);
+}
