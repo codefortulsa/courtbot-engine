@@ -180,7 +180,7 @@ export function verifyContact(contact, communicationType) {
   }
 
   if(result.promises.length) {
-    return Promise.all(result.promises);
+    return Promise.all(result.promises).then(x => x[0]);
   }
 
   return Promise.resolve(result);
