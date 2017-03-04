@@ -31,7 +31,7 @@ emitter.on("courtbot-messaging-get-ordinal", evt => evt.result = parseInt(evt.te
 emitter.on("courtbot-messaging-is-yes", evt => evt.result = evt.text.trim().toUpperCase() === "YES");
 emitter.on("courtbot-messaging-is-no", evt => evt.result = evt.text.trim().toUpperCase() === "NO");
 
-emitter.on("courtbot-messaging-no-case-message", () => null); //NEEDS MESSAGE!
+emitter.on("courtbot-messaging-no-case-message", evt => evt.message = `Couldn't find your case. It can take some time for new cases to appear in the sytem. We will attempt to find your case for ${process.env.QUEUE_TTL_DAYS} days.`); //NEEDS MESSAGE!
 
 emitter.on("courtbot-messaging-bad-message", evt => evt.message = `I'm sorry, we couldn't understand "${evt.text}".
 
