@@ -1,4 +1,4 @@
-import moment from "moment";
+import moment from "moment-timezone";
 import { sendNonReplyMessage } from "./events";
 import completeOptions from "./defaultOptions";
 import { registrationSourceFn } from "./sources";
@@ -22,10 +22,10 @@ export default function(opt) {
     return Promise.all(registrations.map(r => {
       return getCasePartyEvents(r.case_number, r.name)
         .then(events => events.filter(x => {
-          var theDate = isNaN(moment(x.date)) ? moment(x.date.replace(" at ", " "), "dddd, MMMM D, YYYY h:mm A") : moment(x.date);
+          var theDate = isNaN(moment(x.date)) ? moment(x.date.replace(" at ", " "), "dddd, MMMM D, YYYY h:mm A") : moment(x.date).tz(options.timeZoneName || "America/Chicago");
           var theDiff = theDate.diff(moment(), 'days', true);
 
-          x.date = theDate.utcOffset(options.timeZone).format("LLL");
+          x.date = theDate.format("LLL");
 
           var isInReminderPeriod = theDiff < options.reminderDaysOut && theDiff >= 0;
 
