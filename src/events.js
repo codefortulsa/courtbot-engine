@@ -75,7 +75,7 @@ export function getCaseParties(casenumber, options) {
 
       if(errors.length) {
         logger.error(wrappedErrors);
-        if(emitErrorEvent)  emitter.emit("retrieve-parties-error", wrappedErrors);
+        if(emitErrorEvent) emitter.emit("retrieve-parties-error", wrappedErrors);
       }
 
       if(returnErrorsWithData) {
