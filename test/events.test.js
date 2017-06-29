@@ -1,5 +1,4 @@
 import setup from './setup';
-import courtbotError from '../src/courtbotError';
 import { COURTBOT_ERROR_TYPES } from '../src/courtbotError';
 import proxyquire from 'proxyquire';
 
@@ -179,43 +178,9 @@ describe(`events`, () => {
                 return testee.getCaseParties(dummyCase);
             });
 
-            it(`should place the data from non-courtbotError non-objects into courtbotError.initialError.data`, () => {
-                let testData = `testing`;
+            it('should not emit the retrieve-parties-error event if the options.emitErrorEvent is false', () => {
+                emitter.on(`retrieve-parties-error`, retrieveErrorStub);
 
-                emitter.on(`retrieve-parties-error`, (errors) => {
-                    expect(errors[0].initialError.data).to.equal(testData);
-                });
-
-                emitter.on(`retrieve-parties`, (casenumber, result) => {
-                    dummyPartyList.forEach((elem) => {
-                        result.promises.push(Promise.resolve(elem));
-                    });
-
-                    result.promises.push(Promise.reject(testData));
-                });
-
-                return testee.getCaseParties(dummyCase);
-            });
-
-            it(`should place the data from non-courtbotError objects into courtbotError.initialError`, () => {
-                let testData = new Error(`testing`);
-
-                emitter.on(`retrieve-parties-error`, (errors) => {
-                    expect(errors[0].initialError).to.deep.equal(testData);
-                });
-
-                emitter.on(`retrieve-parties`, (casenumber, result) => {
-                    dummyPartyList.forEach((elem) => {
-                        result.promises.push(Promise.resolve(elem));
-                    });
-
-                    result.promises.push(Promise.reject(testData));
-                });
-
-                return testee.getCaseParties(dummyCase);
-            });
-
-            it('should not emit the retrieve-parties-error event if the 1s bit of errorMode is off', () => {
                 emitter.on(`retrieve-parties`, (casenumber, result) => {
                     dummyPartyList.forEach((elem) => {
                         result.promises.push(Promise.resolve(elem));
@@ -224,10 +189,13 @@ describe(`events`, () => {
                     result.promises.push(Promise.reject(`1`));
                 });
 
-                return expect(() => {testee.getCaseParties(dummyCase, 2)}).to.not.emitFrom(emitter, `retrieve-parties-error`);
+                return testee.getCaseParties(dummyCase, { emitErrorEvent: false })
+                    .then(() => {
+                        expect(retrieveErrorStub).to.not.have.been.called();
+                    });
             });
 
-            it('should return a { parties: [], errors: [] } object if the returnErrorsWithData property is true', () => {
+            it('should return a { parties: [], errors: [] } object if the options.returnErrorsWithData property is true', () => {
                 emitter.on(`retrieve-parties`, (casenumber, result) => {
                     dummyPartyList.forEach((elem) => {
                         result.promises.push(Promise.resolve(elem));
@@ -253,7 +221,7 @@ describe(`events`, () => {
 
                 emitter.on(`retrieve-parties-error`, (errors) => {
                     expect(errors[0].type).to.equal(COURTBOT_ERROR_TYPES.API.GET);
-                    expect(errors[0].case).to.equal(dummyCase);
+                    expect(errors[0].casenumber).to.equal(dummyCase);
                 });
 
                 return testee.getCaseParties(dummyCase);
@@ -266,20 +234,20 @@ describe(`events`, () => {
 
                 emitter.on(`retrieve-parties-error`, (errors) => {
                     expect(errors[0].type).to.equal(COURTBOT_ERROR_TYPES.API.GET);
-                    expect(errors[0].case).to.equal(dummyCase);
+                    expect(errors[0].casenumber).to.equal(dummyCase);
               });
 
                 return testee.getCaseParties(dummyCase);
             });
 
-            it('should emit a courtbotError of type COURTBOT_ERROR_TYPES.API.GET and the correct case number if a promise resolves with an array of objects, some of which do not have a "name" property. It should also count the number of malformed items.', () => {
+            it('should emit a courtbotError of type COURTBOT_ERROR_TYPES.API.GET and the correct case number if a promise resolves with an array of objects', () => {
                 emitter.on(`retrieve-parties`, (casenumber, result) => {
                     result.promises.push(Promise.resolve([{ notname: `a,b,c` }, dummyPartyList, { a: true }, { b: false }]));
                });
 
                 emitter.on(`retrieve-parties-error`, (errors) => {
                     expect(errors[0].type).to.equal(COURTBOT_ERROR_TYPES.API.GET);
-                    expect(errors[0].case).to.equal(dummyCase);
+                    expect(errors[0].casenumber).to.equal(dummyCase);
                 });
 
                 return testee.getCaseParties(dummyCase);
@@ -318,7 +286,7 @@ describe(`events`, () => {
             return expect(() => {testee.getCasePartyEvents(dummyCase, dummyParty)}).to.emitFrom(emitter, `retrieve-party-events`, dummyCase, dummyParty, emptyResult);
         });
 
-        it(`if no errors in data retrieval, should return a concatenated array of all party names found`, () => {
+        it(`if no errors in data retrieval, should return an array of all events found`, () => {
             emitter.on(`retrieve-party-events`, (casenumber, party, result) => {
                 dummyEventList.forEach((elem) => {
                     result.promises.push(Promise.resolve(elem));
@@ -353,7 +321,7 @@ describe(`events`, () => {
                 result.promises.push(Promise.reject(`3`));
             });
 
-            // This test fails, but should be equivalent to the uncommented test. Will look into it later, but it works for now
+            // This test doesn't work as expected, but should be equivalent to the uncommented test. Will look into it later, but it works for now
             // No sense wasting time
             // return expect(() => { testee.getCasePartyEvents(dummyCase, dummyParty) }).to.emitFrom(emitter, `retrieve-party-events-error`);
 
@@ -383,61 +351,7 @@ describe(`events`, () => {
             return testee.getCasePartyEvents(dummyCase);
         });
 
-        it(`should place the data from non-courtbotError non-objects into courtbotError.initialError.data`, () => {
-            let testData = `testing`;
-
-            emitter.on(`retrieve-party-events-error`, (errors) => {
-                expect(errors[0].initialError.data).to.equal(testData);
-            });
-
-            emitter.on(`retrieve-party-events`, (casenumber, party, result) => {
-                dummyEventList.forEach((elem) => {
-                    result.promises.push(Promise.resolve(elem));
-                });
-
-                result.promises.push(Promise.reject(testData));
-            });
-
-            return testee.getCasePartyEvents(dummyCase, dummyParty);
-        });
-
-        it(`should place the data from non-courtbotError objects into courtbotError.initialError`, () => {
-            let testData = new Error(`testing`);
-
-            emitter.on(`retrieve-party-events-error`, (errors) => {
-                expect(errors[0].initialError).to.deep.equal(testData);
-            });
-
-            emitter.on(`retrieve-party-events`, (casenumber, party, result) => {
-                dummyEventList.forEach((elem) => {
-                    result.promises.push(Promise.resolve(elem));
-                });
-
-                result.promises.push(Promise.reject(testData));
-            });
-
-            return testee.getCaseParties(dummyCase, dummyParty);
-        });
-
-        it('should not place anything in intial error if the data error is a courtbotError', () => {
-            let testData = new courtbotError(``);
-
-            emitter.on(`retrieve-party-events-error`, (errors) => {
-                expect(errors[0].initialError).to.deep.equal(null);
-            });
-
-            emitter.on(`retrieve-party-events`, (casenumber, party, result) => {
-                dummyEventList.forEach((elem) => {
-                    result.promises.push(Promise.resolve(elem));
-                });
-
-                result.promises.push(Promise.reject(testData));
-            });
-
-            return testee.getCasePartyEvents(dummyCase, dummyParty);
-        });
-
-        it('should not emit the retrieve-parties-error event if the 1s bit of errorMode is off', () => {
+        it('should not emit the retrieve-parties-error event if options.emitErrorEvent is false', () => {
             emitter.on(`retrieve-party-events-error`, retrieveErrorStub);
 
             emitter.on(`retrieve-party-events`, (casenumber, party, result) => {
@@ -448,13 +362,13 @@ describe(`events`, () => {
                 result.promises.push(Promise.reject(`1`));
             });
 
-            return testee.getCasePartyEvents(dummyCase, dummyParty, 2)
+            return testee.getCasePartyEvents(dummyCase, dummyParty, { emitErrorEvent: false })
                 .then(() => {
                     expect(retrieveErrorStub).to.not.have.been.called();
                 });
         });
 
-        it('should return a { events: [], errors: [] } object if the 2s bit of errorMode is on', () => {
+        it('should return a { events: [], errors: [] } object if options.returnErrorsWithData is true', () => {
             emitter.on(`retrieve-party-events`, (casenumber, party, result) => {
                 dummyEventList.forEach((elem) => {
                     result.promises.push(Promise.resolve(elem));
@@ -465,11 +379,24 @@ describe(`events`, () => {
                 result.promises.push(Promise.reject(`3`));
             });
 
-            return testee.getCasePartyEvents(dummyCase, dummyParty, 2)
+            return testee.getCasePartyEvents(dummyCase, dummyParty, { returnErrorsWithData: true })
                 .then((result) => {
                     expect(result.errors.every((e) => { return e.isCourtbotError === true })).to.equal(true);
                     expect(result.events).to.deep.equal(reducedDummyEventList);
                 });
+        });
+
+        it(`should emit a courtbotError of type COURBOT_ERROR_TYPES.API.GET and the correct case number if a promise rejects`, () => {
+            emitter.on(`retrieve-party-events`, (casenumber, party, result) => {
+                result.promises.push(Promise.reject(`fail`));
+            });
+
+            emitter.on(`retrieve-party-events-error`, (errors) => {
+                expect(errors[0].type).to.equal(COURTBOT_ERROR_TYPES.API.GET);
+                expect(errors[0].casenumber).to.equal(dummyCase);
+            });
+
+            return testee.getCasePartyEvents(dummyCase, dummyParty);
         });
 
         describe(`log4js`, () => {
@@ -485,7 +412,7 @@ describe(`events`, () => {
         });
     });
 
-describe(`sendNonReplyMessage`, () => {
+    describe(`sendNonReplyMessage`, () => {
         let dummyTo, dummyMsg, dummyCommunicationType;
 
         beforeEach(() => {
