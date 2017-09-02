@@ -155,7 +155,11 @@ describe(`events`, () => {
                     result.promises.push(Promise.reject(`3`));
                 });
 
-                return expect(() => { testee.getCaseParties(dummyCase) }).to.emitFrom(emitter, `retrieve-parties`);
+                emitter.on(`retrieve-parties-error`, retrieveErrorStub);
+                
+                return testee.getCaseParties(dummyCase).then(() => {
+                    expect(retrieveErrorStub).to.have.been.called();
+                });
             });
 
             it(`if there are errors in data retrieval, should emit retrieve-parties-error by default with an array of courtbotErrors with at least one error`, () => {
