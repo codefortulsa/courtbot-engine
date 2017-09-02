@@ -259,6 +259,13 @@ describe(`events`, () => {
         });
 
         describe(`log4js`, () => {
+            it(`should send something to log4js if no handlers are attached to retrieve-parties`, () => {
+                return testee.getCaseParties(dummyCase).then(() => {
+                    let logged = traceStub.called || debugStub.called || infoStub.called || logStub.called || warnStub.called || errorStub.called || fatalStub.called;
+                    expect(logged).to.equal(true);
+                });                
+            });
+
             it(`should send something to log4js when handling a rejected promise`, () => {
                 emitter.on(`retrieve-parties`, (casenumber, result) => {
                     result.promises.push(Promise.reject(`failed`));

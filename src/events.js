@@ -44,6 +44,10 @@ export function getCaseParties(casenumber, options) {
         options
       );
 
+  if (!(emitter.listenerCount(`retrieve-parties`))) {
+      logger.warn(`No listener is attached to emitter.retrieve-parties. Did you remember to include a data source?`);
+  }
+
   // emit runs synchronously because I/O is not involved, so result will always be populated
   // before further functions are called.
   emitter.emit(`retrieve-parties`, casenumber, result);
